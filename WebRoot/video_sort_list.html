@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>音乐列表</title>
+<script src="js/jquery-1.10.2.min.js"></script>
+<script src="js/jquery-form.js"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		getValue();
+	});
+
+	function getValue() {
+		$("#showsortlist").empty();
+		$("#staticshwolist").empty();
+		$.ajax({
+			type : "POST",
+			url : "smc/getVideoSortList",
+			dataType : "json",
+			success : function(msg) {
+				var table = $("#showsortlist");
+				var statictable = $("#staticshwolist");
+				
+				for (var i = 0; i < msg.length; i++) {
+					if(msg[i].ms_state==0){
+						continue;
+					}
+					var tr = createTR(msg[i].ms_id, msg[i].ms_name,
+							msg[i].ms_state, msg[i].ms_changimageurl,msg[i].ms_lueimageurl,msg[i].ms_remark);
+					if(msg[i].ms_state==2){
+					statictable.append(tr);
+					}else{
+					table.append(tr);
+					}
+				}
+			}
+		});
+	}
+	function submitForms(formname) {
+		$("#subForm" + formname).ajaxSubmit({
+			url : "smc/addOrUpdateSortList",
+			success : function(data) {
+				alert(data);
+				if (data == 'ok') {
+					$("#showsortlist").empty();
+					getValue();
+				} else {
+                    alert(data);
+	 			}
+			}
+		});
+	}
+	function createTR(id, name, state, image,image2,remark) {
+		var tr = $("<tr></tr>");
+		var td_left = $("<td></td>");
+		var td_left2 = $("<td></td>");
+		var td_right = $("<td></td>");
+		//描述：<input type="text" name="remark" /><br/>
+
+		var image = $("<img style='width:340px;height:200px'src='video_sort_image/"+image+"'>");
+		td_left.append(image);
+		
+		var image2 = $("<img style='width:40px;height:40px'src='video_sort_image/"+image2+"'>");
+		td_left2.append(image2);
+		
+		var form = $("<form id='subForm"+id+"' method='post' enctype='multipart/form-data'></form>");
+		form
+				.append("视频分类编号：<input type='text' name='sortid' readonly='readonly'  value="+id+" /><br/><br/>");
+		form
+				.append("视频分类名称：<input type='text' name='sortname' value="+name+" /><br/><br/>");
+		
+		form
+				.append("视频分类状态(2，为静态分类1，为活动上线，0，为关闭)：<input type='text'  name='sortstate' value="+state+" /><br/><br/>");
+		
+		form.append("视频分类长图片：<input type='file'  name='chang' /><br/><br/>");
+		form.append("视频分类略图片：<input type='file'  name='lue' /><br/><br/>");
+		form.append("视频分类描述：<input type='text'  name='remark'value="+remark+" /><br/><br/>");
+		form.append("<input type='button' onclick='submitForms(" + id
+				+ ")' value='提交数据' />&nbsp;");
+		td_right.append(form);
+		tr.append(td_left);
+		tr.append(td_left2);
+		tr.append(td_right);
+		return tr;
+	}
+</script>
+</head>
+<body>
+	<center>
+	     <span style="font-size:50px;color:red;">活动分类列表</span>
+		<div>
+			<table id="showsortlist" border="1px"></table>
+		</div>
+		<br/><span style="font-size:50px;color:red;">静态分类列表</span>
+		<div>
+			<table id="staticshwolist" border="1px"></table>
+		</div>
+	</center>
+
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>音乐列表</title>
+<script src="js/jquery-1.10.2.min.js"></script>
+<script src="js/jquery-form.js"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		getValue(1);
+	});
+
+	function getValue(page_id) {
+		$("#showsortlist").empty();
+		$.ajax({
+			type : "POST",
+			url : "smc/get_audio_sort",
+			dataType : "json",
+			success : function(msg) {
+				var table=$("#showsortlist");
+				for (var i = 0; i < msg.length; i++) {
+					var tr= createTR(msg[i].id,msg[i].sort_name);
+					table.append(tr);
+				}
+			}
+		});
+	}
+	function submitForms(formname) {
+		var sortname=$("#name_"+formname).val();
+		if(sortname=='')
+			{
+			alert("就一个空你还空着");
+			return;
+			}
+		
+		$.ajax({
+			type : "POST",
+			url : "smc/update_audio_sort",
+			data:{"id":formname,
+				"sortname":sortname},
+			success : function(data) {
+				alert(data);
+			}
+		});
+	}
+	function createTR(id, name) {
+		var tr = $("<tr></tr>");
+
+		var td_id = $("<td style='width:100px'>id:" + id + "</td>");
+		var td_name = $("<td style='width:300px'>分类名：<input type='text' id=name_"+id+" value="+name+">&nbsp;<input type='submit' onclick='submitForms("+id+")'  value='修改'></td>");
+
+		tr.append(td_id);
+		tr.append(td_name);
+
+		return tr;
+	}
+</script>
+</head>
+<body>
+	<center>
+		<div>
+			<table id="showsortlist" border="1px" ></table>
+		</div>
+	</center>
+
+</body>
+</html>

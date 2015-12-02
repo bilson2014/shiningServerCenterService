@@ -1,0 +1,196 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Content-Type" content="; charset=utf-8" />
+<title>视频管理</title>
+
+<style type="text/css">
+#SearchText {
+	font-size: 30px;
+}
+
+#SearchInput {
+	width: 500px;
+	height: 30px;
+}
+
+#SearchBtn {
+	height: 34px;
+}
+
+#videoList {
+	
+}
+</style>
+<script src="js/jquery-1.10.2.min.js"></script>
+<script src="js/jquery-form.js"></script>
+<script src="js/jquery.cookie.js"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		init();
+		getValue(1);
+	});
+	function init() {
+		$.ajax({
+			type : "POST",
+			url : "smc/audio_sort_init",
+			async : false,
+			success : function(msg) {
+				$.cookie('audioSort', msg);
+			}
+		});
+	}
+	function createSelect(id) {
+		var sortListJson = $.cookie('audioSort');
+		var JSON = $.parseJSON(sortListJson);
+		var select = $("<select name='sotr_select'></select>");
+
+		for (var i = 0; i < JSON.length; i++) {
+			if (i == id) {
+				var option = $("<option value="+JSON[i].id+">"
+						+ JSON[i].sort_name + "</option>");
+			} else {
+				var option = $("<option value="+JSON[i].id+">"
+						+ JSON[i].sort_name + "</option>");
+			}
+			select.append(option);
+		}
+		select.val(id);
+		return select;
+
+	}
+	function getValue(page_id) {
+		var tab = $("#videoList").empty();
+		var page_size = 20;
+		$.ajax({
+			type : "GET",
+			url : "smc/getAudioList",
+			//data : {
+			//	"page_id" : page_id,
+			//	"page_size" : page_size
+			//},
+			dataType : "json",
+			success : function(msg) {
+				for (var i = 0; i < msg.length; i++) {
+					var tr = createTR(msg[i].id, msg[i].audio_name,
+							msg[i].audio_context, msg[i].audio_author,
+							msg[i].audio_sort_id);
+					tab.append(tr);
+				}
+			}
+		});
+	}
+	function createTR(id, name, context, author, sort_id) {
+		var tr = $("<tr></tr>");
+		var td = $("<td></td>");
+		var form = $("<form id='subForm"+id+"' method='post' ></form>");
+		form
+				.append("音乐编号：<input type='text' name='id' readonly='readonly' value='"+id+"'/><br/><br/>");
+		form
+				.append("音乐名称：<input type='text' name='name' value='"+name+"'/><br/><br/>");
+		form
+				.append("音乐介绍：<input type='text' name='context' value='"+context+"'/><br/><br/>");
+		form
+				.append("音乐作者：<input type='text' name='author' value='"+author+"'/><br/><br/>");
+
+		form.append(createSelect(parseInt(sort_id)));
+		//form.appemd("<br/>");
+		form
+				.append(" &nbsp; <input type='button' onclick='submitForms("+ id+ ")'  value='提交'/> &nbsp; <input type='button' onclick='delmedia("+ id+ ")' value='删除'/><br/><br/>");
+		td.append(form);
+		tr.append(td);
+		return tr;
+	}
+
+	function searchmedia() {
+		alert("功能尚未拥有");
+	}
+
+	function submitForms(formname) {
+		$("#subForm" + formname).ajaxSubmit({
+			url : "smc/modify_audio_base_list",
+			success : function(data) {
+				alert(data);
+				//location.reload(true);
+				if (data == '更新成功') {
+					location.reload(true);
+				}
+			}
+		});
+	}
+	function delmedia(id) {
+		$.ajax({
+			type : "POST",
+			url : "smc/deleteAudio?id=" + id,
+			success : function(msg) {
+				alert(msg);
+				//location.reload(true);
+					location.reload(true);
+			}
+		});
+	}
+
+	//--------------------Did not open
+	function pageup() {
+		var pageID = parseInt($("#pageSpan").html());
+		pageID = pageID - 1;
+		if (pageID > 0) {
+			$("#videoList").empty();
+			getValue(pageID);
+			$("#pageSpan").html(pageID)
+		}
+	}
+
+	function pagedown() {
+		var pageID = parseInt($("#pageSpan").html());
+		pageID = pageID + 1;
+		$("#videoList").empty();
+		getValue(pageID);
+		$("#pageSpan").html(pageID)
+	}
+	function pageGOto() {
+		var pageID = parseInt($("#pageID").val());
+		if (pageID > 0) {
+			$("#videoList").empty();
+			getValue(pageID);
+			$("#pageSpan").html(pageID)
+		}
+	}
+</script>
+</head>
+<body>
+	<div>
+		<center>
+			<br /> <br /> <br />
+			<!-- 
+			 <div id="div_Search">
+				<table>
+					<tr>
+						<td id="SearchText">搜索</td>
+						<td><input type="text" id="SearchInput" name="SearchName"
+							class="Searchclass" /></td>
+						<td><input id="SearchBtn" type="button"
+							onclick="searchmedia()" value="搜索" /></td>
+					</tr>
+				</table>
+	   
+			</div> 
+			 -->
+			<div>
+				<br /> <br />
+				<table id="videoList" border="1px">
+				</table>
+			</div>
+			<div id="div_foot">
+				<br /> <br /> <br />
+				<button onclick="pageup()">上一页</button>
+				第<span id="pageSpan">1</span>页
+				<button onclick="pagedown()">下一页</button>
+				<input type="text" id="pageID" style="width: 30px;" />
+				<button onclick="pageGOto()">GO</button>
+			</div>
+		</center>
+	</div>
+</body>
+</html>

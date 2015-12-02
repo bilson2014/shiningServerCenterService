@@ -1,0 +1,146 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>视频审核</title>
+<script src="js/jquery-1.10.2.min.js"></script>
+<script src="js/jquery-form.js"></script>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		getVideo(1);
+	});
+
+	function getVideo(page_id) {
+		var page_size = 11150;
+		var table = $("#showView");
+		table.empty();
+		$.ajax({
+			type : "GET",
+			url : "smc/getUserVideo",
+			data : {
+				"page_id" : page_id,
+				"page_size" : page_size
+			},
+			dataType : "json",
+			success : function(msg) {
+				for (var i = 0; i < msg.length; i++) {
+					var tr = createTR(msg[i].video_state, msg[i].id,
+							msg[i].video_name, msg[i].upload_time);
+					table.append(tr);
+				}
+			}
+		});
+	}
+
+	function through(id) {
+		$.ajax({
+			type : "GET",
+			url : "smc/update_User_VideoState",
+			data : {
+				"id" : id,
+				"tag" : "through"
+			}
+		});
+		location.reload(true);
+	}
+
+	function noThrough(id) {
+		$.ajax({
+			type : "GET",
+			url : "smc/update_User_VideoState",
+			data : {
+				"id" : id,
+				"tag" : "noThrough"
+			}
+		});
+		location.reload(true);
+	}
+	
+	function alertWindow(path){
+     window.open("alertWindow.html?path="+path,"info","width=220,height=420");
+    }
+
+	// 1 为刚上传，为审核
+	// 0 为审核为通过
+	// 10为审核通过
+	function createTR(tag, id, videoName, time) {
+		var tr;
+		var url = "http://182.92.154.162:8080/shiningCenterService/media_base_user/"
+				+ videoName;
+		if (tag == '1') {
+			tr = $("<tr style='background-color: yellow;'></tr>");
+			var td_video = $("<td></td>");
+			var td_right = $("<td></td>");
+			td_right.append("未通审核！！<br/><br/>");
+			td_right.append("UploadTime:" + time
+					+ "<br/><br/><br/><br/><br/><br/>");
+			td_right.append("<button onclick='through(" + id
+					+ ")'>通过</button>&nbsp;");
+			td_right.append("<button onclick='noThrough(" + id
+					+ ")'>不通过</button>");
+			//poster='"+url+"'
+			//<video controls="" autoplay="" name="media"></video>
+			var button = $("<button>查看视频</button>");
+			button.click(
+			  function(){
+			    alertWindow(url);
+			  }
+			);
+			td_video.append(button);
+			tr.append(td_video);
+			tr.append(td_right);
+		} else if (tag == '0') {
+			tr = $("<tr style='background-color: red;'></tr>");
+			var td_video = $("<td></td>");
+			var td_right = $("<td></td>");
+			td_right.append("未通过！！<br/><br/>");
+			td_right.append("UploadTime:" + time
+					+ "<br/><br/><br/><br/><br/><br/>");
+			td_right.append("<button onclick='through(" + id
+					+ ")'>通过</button>&nbsp;");
+			//poster='"+url+"'
+			//<video controls="" autoplay="" name="media"></video>
+			var button = $("<button>查看视频</button>");
+			button.click(
+			  function(){
+			    alertWindow(url);
+			  }
+			);
+			td_video.append(button);
+			tr.append(td_video);
+			tr.append(td_right);
+
+		} else if (tag == '10') {
+			tr = $("<tr style='background-color: #7FFF00;'></tr>");
+			var td_video = $("<td></td>");
+			var td_right = $("<td></td>");
+			td_right.append("已通过审核！！<br/><br/>");
+			td_right.append("UploadTime:" + time
+					+ "<br/><br/><br/><br/><br/><br/>");
+			td_right.append("<button onclick='noThrough(" + id
+					+ ")'>不通过</button>");
+			//poster='"+url+"'
+			//<video controls="" autoplay="" name="media"></video>
+			var button = $("<button>查看视频</button>");
+			button.click(
+			  function(){
+			    alertWindow(url);
+			  }
+			);
+			td_video.append(button);
+			tr.append(td_video);
+			tr.append(td_right);
+		}
+		return tr;
+	}
+</script>
+</head>
+<body>
+	<center>
+		<div>
+			<table id="showView" border="1xp"></table>
+		</div>
+	</center>
+</body>
+</html>

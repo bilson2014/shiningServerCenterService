@@ -1,0 +1,278 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Content-Type" content="; charset=utf-8" />
+<title>视频管理</title>
+
+<style type="text/css">
+#SearchText {
+	font-size: 30px;
+}
+
+#SearchInput {
+	width: 500px;
+	height: 30px;
+}
+
+#SearchBtn {
+	height: 34px;
+}
+
+#videoList {
+	
+}
+</style>
+<script src="js/jquery-1.10.2.min.js"></script>
+<script src="js/jquery-form.js"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		getValue(1);
+	});
+	function getValue(page_id) {
+		$("#videoList").empty();
+		var page_size = 20;
+		$
+				.ajax({
+					type : "GET",
+					url : "smc/get_media_base2nd",
+					data : {
+						"page_id" : page_id,
+						"page_size" : page_size
+					},
+					dataType : "json",
+					success : function(msg) {
+						var mb_id = 0;
+						var mb_video_name = "";
+						var mb_name = "";
+						var mb_content = "";
+						var mb_keys = "";
+						var mb_weight = "";
+						var mb_state = "";
+						var mb_author = "";
+						var mb_video_name = "";
+						var table = $("#videoList");
+						for (var i = 0; i < msg.length; i++) {
+							mb_id = msg[i].mb_id;
+							mb_video_name = msg[i].mb_video_name;
+							mb_name = msg[i].mb_name;
+							mb_content = msg[i].mb_content;
+							mb_keys = msg[i].mb_keys;
+							mb_weight = msg[i].mb_weight;
+							mb_state = msg[i].mb_state;
+							mb_author = msg[i].mb_author;
+							mb_video_name = msg[i].mb_video_name;
+							var tr = newTR(mb_id, mb_video_name, mb_name,
+									mb_content, mb_keys, mb_weight, mb_state,
+									mb_author, mb_video_name);
+							table.append(tr);
+						}
+					}
+		});
+	}
+
+	function searchmedia() {
+		$("#videoList").empty();
+		var searchValue = $("#SearchInput").val();
+		if (searchValue == '') {
+			var page_id = $("#pageSpan").html();
+			getValue(page_id);
+		} else {
+			$
+					.ajax({
+						type : "POST",
+						url : "smc/search_Media_Base",
+						data : {
+							"page_id" : "1",
+							"page_size" : "10000",
+							"searchValue" : searchValue
+						},
+						dataType : "json",
+						success : function(msg) {
+							var mb_id = 0;
+							var mb_video_name = "";
+							var mb_name = "";
+							var mb_content = "";
+							var mb_keys = "";
+							var mb_weight = "";
+							var mb_state = "";
+							var mb_author = "";
+							var mb_video_name = "";
+							var table = $("#videoList");
+							for (var i = 0; i < msg.length; i++) {
+								mb_id = msg[i].mb_id;
+								mb_video_name = msg[i].mb_video_name;
+								mb_name = msg[i].mb_name;
+								mb_content = msg[i].mb_content;
+								mb_keys = msg[i].mb_keys;
+								mb_weight = msg[i].mb_weight;
+								mb_state = msg[i].mb_state;
+								mb_author = msg[i].mb_author;
+								mb_video_name = msg[i].mb_video_name;
+								var tr = newTR(mb_id, mb_video_name, mb_name,
+										mb_content, mb_keys, mb_weight,
+										mb_state, mb_author, mb_video_name);
+								table.append(tr);
+							}
+						}
+					});
+		}
+	}
+
+	function newTR(mb_id, mb_video_name, mb_name, mb_content, mb_keys,
+			mb_weight, mb_state, mb_author, mb_video_name) {
+		var tr = $("<tr id='tr"+mb_id+"'></tr>");
+		/*
+		var td_mb_id=$("<td>1</td>");
+		var td_mb_video_name=$("<td>1</td>");
+		var td_mb_name=$("<td>1</td>");
+		var td_mb_content=$("<td>1</td>");
+		var td_mb_keys=$("<td>1</td>");
+		var td_mb_weight=$("<td>1</td>");
+		var td_mb_state=$("<td>1</td>");
+		var td_mb_author=$("<td>1</td>");
+		var td_image=$("<td>1</td>");
+		
+		tr.append(td_mb_id);
+		tr.append(td_mb_video_name);
+		tr.append(td_mb_name);
+		tr.append(td_mb_content);
+		tr.append(td_mb_keys);
+		tr.append(td_mb_weight);
+		tr.append(td_mb_state);
+		tr.append(td_mb_author);
+		tr.append(td_image);
+		 */
+
+		var td_left = $("<td></td>");
+		var td_right = $("<td></td>");
+
+		var imageName = mb_video_name.substr(0, mb_video_name.indexOf(".mp4"))
+				+ ".jpg";
+		//var image = $("<img style='width:200px;height:340px' src='http://182.92.154.162:8080/shiningCenterService/media_base/"+imageName+"'>")
+		//td_left.append(image);
+		
+		var image = $("<img style='width:200px;height:340px' src='http://192.168.1.110:8080/shiningCenterService/media_base/"+imageName+"'>")
+		td_left.append(image);
+		
+
+		var form = $("<form id='subForm"+mb_id+"' method='post' enctype='multipart/form-data'></form>");
+
+		form
+				.append("视频编号：<input type='text' name='mb_id' readonly='readonly' id='td_id_"+mb_id+"' value='"+mb_id+"'/><br/><br/>");
+		form
+				.append("视频名称：<input type='text' name='name' id='td_videoname_"+mb_id+"' value='"+mb_name+"'/><br/><br/>");
+		form
+				.append("视频描述：<input type='text' name='content' id='td_videocontext_"+mb_id+"' value='"+mb_content+"'/><br/><br/>");
+		form
+				.append("作者：<input type='text' name='author' id='td_videoauthor_"+mb_id+"' value='"+mb_author+"'/><br/><br/>");
+		form
+				.append("keys：<input type='text' name='keyword' id='td_videoKEY_"+mb_id+"' value='"+mb_keys+"'/><br/><br/>");
+		form
+		        .append("封面图片：<input type='file' name='imagefile'/><br/><br/>");
+		form
+				.append("设置视频优先级： <input type='text' name='weight' id='td_videomb_weight_"+mb_id+"' value='"+mb_weight+"'/><br/><br/>");
+		form.append("<input type='button' onclick='submitForms(" + mb_id
+				+ ")' value='提交数据' />&nbsp;");
+
+		form.append("<input type='button' onclick='delmedia(" + mb_id
+				+ ")' value='删除该条视频' />&nbsp;");
+		//smc/getVideo?id=
+		form.append("<input type='button'  value='预览视频' />");
+
+		td_right.append(form);
+
+		tr.append(td_left);
+		tr.append(td_right);
+		return tr;
+	}
+
+	function submitForms(formname) {
+		$("#subForm" + formname).ajaxSubmit({
+			url : "smc/modify_media_base",
+			success : function(data) {
+				alert(data);
+				//location.reload(true);
+				if ($("#SearchInput").val() == '') {
+					var page_id = $("#pageSpan").html();
+				//	getValue(page_id);
+				} else {
+					searchmedia();
+				}
+			}
+		});
+	}
+	function delmedia(id) {
+		$.ajax({
+			type : "POST",
+			url : "smc/hide_media_base?id=" + id,
+			success : function(msg) {
+				alert(msg);
+				//location.reload(true);
+				if ($("#SearchInput").val() == '') {
+					var page_id = $("#pageSpan").html();
+				//	getValue(page_id);
+				} else {
+					searchmedia();
+				}
+			}
+		});
+	}
+	function pageup() {
+		var pageID = parseInt($("#pageSpan").html());
+		pageID = pageID - 1;
+		if (pageID > 0) {
+			$("#videoList").empty();
+			getValue(pageID);
+			$("#pageSpan").html(pageID)
+		}
+	}
+
+	function pagedown() {
+		var pageID = parseInt($("#pageSpan").html());
+		pageID = pageID + 1;
+		$("#videoList").empty();
+		getValue(pageID);
+		$("#pageSpan").html(pageID)
+	}
+	function pageGOto() {
+		var pageID = parseInt($("#pageID").val());
+		if (pageID > 0) {
+			$("#videoList").empty();
+			getValue(pageID);
+			$("#pageSpan").html(pageID)
+		}
+	}
+</script>
+</head>
+<body>
+	<div>
+		<center>
+			<div id="div_Search">
+				<table>
+					<tr>
+						<td id="SearchText">搜索</td>
+						<td><input type="text" id="SearchInput" name="SearchName"
+							class="Searchclass" /></td>
+						<td><input id="SearchBtn" type="button"
+							onclick="searchmedia()" value="搜索" /></td>
+					</tr>
+				</table>
+			</div>
+			<div>
+				<br /> <br />
+				<table id="videoList" border="1px">
+				</table>
+			</div>
+			<div id="div_foot">
+				<br /> <br /> <br />
+				<button onclick="pageup()">上一页</button>
+				第<span id="pageSpan">1</span>页
+				<button onclick="pagedown()">下一页</button>
+				<input type="text" id="pageID" style="width: 30px;" />
+				<button onclick="pageGOto()">GO</button>
+			</div>
+		</center>
+	</div>
+</body>
+</html>

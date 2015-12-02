@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>音乐列表</title>
+<script src="js/jquery-1.10.2.min.js"></script>
+<script src="js/jquery-form.js"></script>
+<script src="js/jquery.cookie.js"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		init();
+		initSortSelect();
+	});
+
+	function init() {
+		$.ajax({
+			type : "POST",
+			url : "smc/audio_sort_init",
+			async : false,
+			success : function(msg) {
+				$.cookie('audioSort', msg);
+			}
+		});
+	}
+	function initSortSelect() {
+		var sortListJson = $.cookie('audioSort');
+		var JSON = $.parseJSON(sortListJson);
+		var select = $("[name=sort]");
+
+		for (var i = 0; i < JSON.length; i++) {
+			var option = $("<option value="+JSON[i].id+">" + JSON[i].sort_name
+					+ "</option>");
+			select.append(option);
+		}
+
+	}
+	function submitVideoF(){
+		$("#subForm").ajaxSubmit({
+			url : "smc/submitAudio",
+			success : function(data) {
+				alert(data+"");
+			}
+		});
+	}
+
+</script>
+</head>
+<body>
+	<center>
+		<div>
+			<form id="subForm"  method="post" enctype='multipart/form-data'>
+				<table border="1px">
+				    <tr>
+						<td>文件</td>
+						<td><input type="file" name="file" /></td>
+					</tr>
+				
+					<tr>
+						<td>音乐名</td>
+						<td><input type="text" name="audioName" /></td>
+					</tr>
+
+					<tr>
+						<td>音乐作者</td>
+						<td><input type="text" name="audioAuthor" /></td>
+					</tr>
+
+					<tr>
+						<td>音乐详细信息</td>
+						<td><input type="text" name="audioContext" /></td>
+					</tr>
+
+					<tr>
+						<td>分类</td>
+						<td><select name="sort"></select></td>
+					</tr>
+
+					<tr>
+						<td colspan="2">&nbsp;&nbsp;&nbsp;<input type="reset" value="清空">&nbsp;&nbsp;&nbsp; <input
+							type="button" onclick="submitVideoF()" value="提交"></td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	</center>
+
+</body>
+</html>

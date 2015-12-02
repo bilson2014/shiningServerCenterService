@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Content-Type" content="; charset=utf-8" />
+<title>servicestate</title>
+<script src="js/jquery-1.10.2.min.js"></script>
+<!-- <script src="js/jquery-form.js"></script> -->
+<script type="text/javascript">
+	$(document).ready(function() {
+		getData();
+		getDatatoDie();
+		getDatatoError();
+	});
+	function getData() {
+		$.ajax({
+			type : "GET",
+			url : "State/getSurvival",
+			dataType : "json",
+			success : function(msg) {
+				var SurvivalView = $("#showSurvivalView");
+				var tr=$("<tr><td>存活服务器列表</td></tr>");
+				SurvivalView.append(tr);
+				for (var i = 0; i < msg.length; i++) {
+					var item =createTR(msg[i]);
+					SurvivalView.append(item);
+				}
+			}
+		});
+	}
+	function createTR(itemValue) {
+        var tr=$("<tr></tr>");
+        var td=$("<td>"+itemValue+"</td>");
+        tr.append(td);
+        return tr;
+	}
+	
+	
+	function getDatatoDie() {
+		$.ajax({
+			type : "GET",
+			url : "State/getDie",
+			dataType : "json",
+			success : function(msg) {
+				var SurvivalView = $("#showdieView");
+				var tr=$("<tr><td>失效服务器列表</td></tr>");
+				SurvivalView.append(tr);
+				for (var i = 0; i < msg.length; i++) {
+					var item =createTR(msg[i]);
+					SurvivalView.append(item);
+				}
+			}
+		});
+	}
+	function getDatatoError() {
+		$.ajax({
+			type : "GET",
+			url : "State/getError",
+			dataType : "json",
+			success : function(msg) {
+				var SurvivalView = $("#showErrorView");
+				var tr=$("<tr><td>服务错误信息</td></tr>");
+				SurvivalView.append(tr);
+				for (var i = 0; i < msg.length; i++) {
+					var item =createTR2(msg[i].errorName,msg[i].message,msg[i].time);
+					SurvivalView.append(item);
+				}
+			}
+		});
+	}
+	function createTR2(errorName,errorMessage,time) {
+        var tr=$("<tr></tr>");
+        var td=$("<td>错误名称："+errorName+"，<br/>错误信息： "+ errorMessage+ ",<br/>发生时间："+ time +"</td>");
+        tr.append(td);
+        return tr;
+	}
+</script>
+<style type="text/css">
+#showSurvivalView{
+width: 300px;
+}
+
+#showdieView{
+width: 300px;
+}
+
+#showErrorView{
+width: 300px;
+}
+</style>
+</head>
+<body>
+		<div>
+			<table id="showSurvivalView" border="1px">
+			</table>
+		</div>
+		
+		<br /><br /><br /><br />
+		<div>
+			<table id="showdieView" border="1px">
+			</table>
+		</div>
+		
+		<br /><br /><br /><br />
+		<div>
+			<table id="showErrorView" border="1px">
+			</table>
+		</div>
+</body>
+</html>

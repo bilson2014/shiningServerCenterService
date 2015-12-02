@@ -1,0 +1,2 @@
+﻿{"content":"此版本修复了列表显示问题，增加了全新的引导功能，快来试试吧！",
+"downpath":"http://www.shiningmovie.com/shiningApp/shining.apk","pname":"com.panfeng.shinning","vcode":"20","vname":"2.6"}

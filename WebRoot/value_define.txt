@@ -1,0 +1,4 @@
+HOST=http://182.92.154.162:8080/shinningserver/
+DB_IP=localhost
+DB_PORT=3306
+DB_NAME=shinning
