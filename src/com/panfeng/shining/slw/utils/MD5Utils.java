@@ -8,18 +8,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class MD5Utils {
-	protected static char hexDigitsArray[] = { '0', '1', '2', '3', '4', '5',
-			'6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
-
-	protected static MessageDigest messagedigest = null;
-	static {
-		try {
-			messagedigest = MessageDigest.getInstance("MD5");
-		} catch (NoSuchAlgorithmException nsaex) {
-			// 初始化失败
-			System.err.println(nsaex.getMessage());
-		}
-	}
+	protected static char hexDigits[] = { '0', '1', '2', '3', '4', '5', '6',
+			'7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
 	/**
 	 * 生成字符串的md5校验值
@@ -51,8 +41,40 @@ public class MD5Utils {
 	 * @return
 	 * @throws IOException
 	 */
+	public static String getQuickFileMD5String(final File file) {
+		int calculateByteSize = 512;
+		String res = "";
+		// 1.计算当前文件是否超过限定值
+		if (file.length() > calculateByteSize) {
+			byte[] by = new byte[calculateByteSize];
+			InputStream is = null;
+			try {
+				is = new FileInputStream(file);
+				is.skip((is.available() - calculateByteSize));
+				is.read(by);
+				res = getMD5String(by);
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				if (is != null) {
+					try {
+						is.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		} else {
+			res = getFileMD5String(file);
+		}
+		return res;
+	}
+
 	public static String getFileMD5String(final File file) {
+		MessageDigest messagedigest = null;
+		String res = "";
 		try {
+			messagedigest = MessageDigest.getInstance("MD5");
 			InputStream fis;
 			fis = new FileInputStream(file);
 			byte[] buffer = new byte[1024];
@@ -62,14 +84,82 @@ public class MD5Utils {
 			}
 			fis.close();
 		} catch (Exception e) {
-          System.err.println(e.getMessage());
+			e.printStackTrace();
 		}
-		return bufferToHex(messagedigest.digest());
+		if (messagedigest != null)
+			res = bufferToHex(messagedigest.digest());
+
+		return res;
+	}
+
+	public static boolean checkFileMD5(final File file, String md5) {
+		if (file == null || md5 == null || !file.exists() || file.length() <= 0
+				|| md5.equals(""))
+			return false;
+		MessageDigest messagedigest = null;
+		boolean res = false;
+		try {
+			messagedigest = MessageDigest.getInstance("MD5");
+			InputStream fis;
+			fis = new FileInputStream(file);
+			byte[] buffer = new byte[1024];
+			int numRead = 0;
+			while ((numRead = fis.read(buffer)) > 0) {
+				messagedigest.update(buffer, 0, numRead);
+			}
+			fis.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if (messagedigest != null) {
+			String str = bufferToHex(messagedigest.digest());
+			if (!StringUtils.isEmpty(md5) && !StringUtils.isEmpty(str)
+					&& md5.equals(str))
+				res = true;
+			else
+				res = false;
+		}
+		return res;
+	}
+
+	public static String getInputStreamMD5String(final InputStream is) {
+		if (is == null)
+			return "";
+		MessageDigest messagedigest = null;
+		String res = "";
+		try {
+			messagedigest = MessageDigest.getInstance("MD5");
+			byte[] buffer = new byte[512];
+
+			int read;
+			while ((read = is.read(buffer)) != -1) {
+				messagedigest.update(buffer, 0, read);
+			}
+			buffer = null;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if (messagedigest != null)
+			res = bufferToHex(messagedigest.digest());
+
+		return res;
 	}
 
 	public static String getMD5String(final byte[] bytes) {
+		if (bytes == null)
+			return "";
+		MessageDigest messagedigest = null;
+		String res = "";
+		try {
+			messagedigest = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
 		messagedigest.update(bytes);
-		return bufferToHex(messagedigest.digest());
+		if (messagedigest != null)
+			res = bufferToHex(messagedigest.digest());
+
+		return res;
 	}
 
 	private static String bufferToHex(final byte bytes[]) {
@@ -108,13 +198,18 @@ public class MD5Utils {
 		// 1111-->15 -->1x2E0+1x2E1+1x2E2+1x2E3=1+2+4+8=15
 		// 0123456789abcdef
 
-		char c0 = hexDigitsArray[(bete & 0xf0) >> 4];
-		char c1 = hexDigitsArray[bete & 0xf];
+		char c0 = hexDigits[(bete & 0xf0) >> 4];
+		char c1 = hexDigits[bete & 0xf];
 		stringbuffer.append(c0);
 		stringbuffer.append(c1);
 	}
 
 	public static void main(String[] args) {
-		System.out.println(getMD5String("123"));
+		long begin = System.currentTimeMillis();
+		File file = new File("E:/a.txt");
+		String md5 = getFileMD5String(file);
+		System.out.println("MD5:" + md5);
+		long end = System.currentTimeMillis();
+		System.out.println("md5:" + md5 + " time:" + ((end - begin)) + "ss");
 	}
 }

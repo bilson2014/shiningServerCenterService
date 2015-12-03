@@ -4,14 +4,22 @@ public class VideoInfo {
 	private String videoName;
 	private long size;
 
-	public VideoInfo() {
-		super();
+	@Override
+	public boolean equals(Object obj) {
+		boolean res = false;
+		if (obj != null && obj instanceof VideoInfo) {
+			String name = ((VideoInfo) obj).getVideoName();
+			long sizes = ((VideoInfo) obj).getSize();
+			if (name.equals(videoName) && sizes == size)
+				res = true;
+		} else
+			res = false;
+		return res;
 	}
 
-	public VideoInfo(String videoName, long size) {
-		super();
-		this.videoName = videoName;
-		this.size = size;
+	@Override
+	public String toString() {
+		return videoName + "%%" + size;
 	}
 
 	public String getVideoName() {
@@ -27,6 +35,17 @@ public class VideoInfo {
 	}
 
 	public void setSize(long size) {
+		this.size = size;
+	}
+
+	public VideoInfo() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public VideoInfo(String videoName, long size) {
+		super();
+		this.videoName = videoName;
 		this.size = size;
 	}
 

@@ -17,6 +17,7 @@ import com.jfinal.upload.UploadFile;
 import com.panfeng.shining.ConfigDefine;
 import com.panfeng.shining.ServiceList;
 import com.panfeng.shining.entity.VideoInfo;
+import com.panfeng.shining.entity.newVideoInfo;
 import com.panfeng.shining.net.HttpUrlConnection;
 import com.panfeng.shining.slw.utils.MD5Utils;
 import com.panfeng.shining.tables.AudioBaseList;
@@ -48,7 +49,7 @@ public class MainController extends Controller {
 	}
 
 	public void getVideoList() {
-		List<VideoInfo> fileList = new ArrayList<VideoInfo>();
+		List<newVideoInfo> fileList = new ArrayList<newVideoInfo>();
 		String mediaPaht = GlobalProperties.get().get("mediaBasePath")
 				.toString();
 
@@ -63,9 +64,9 @@ public class MainController extends Controller {
 			if (lastindex >= 1) {
 				fileType = fileName.substring(lastindex, fileName.length());
 				if (fileType.equals(".mp4") && array[i].length() > 1) {
-					VideoInfo vi = new VideoInfo();
+					newVideoInfo vi = new newVideoInfo();
 					vi.setVideoName(fileName);
-					vi.setSize(array[i].length());
+					vi.setMd5(MD5Utils.getQuickFileMD5String(array[i]));
 					fileList.add(vi);
 				}
 			}
@@ -154,29 +155,29 @@ public class MainController extends Controller {
 	/*
 	 * 增加收藏次数
 	 */
-//	public void add_favtimes() {
-//
-//		try {
-//			int mb_id = TyuServerUtils.getParamInt(this, "id", 0);
-//			if (mb_id == 0) {
-//				renderText("error");
-//				return;
-//			}
-//			SmbData data = (SmbData) SmbData.dao.findById(Integer
-//					.valueOf(mb_id));
-//			if (data != null) {
-//				int weight = data.getInt("mb_favtimes").intValue() + 1;
-//				data.set("mb_favtimes", Integer.valueOf(weight));
-//				data.update();
-//				renderText("ok");
-//			} else {
-//				renderText("error");
-//			}
-//		} catch (Exception e) {
-//			renderText("error:" + e.toString());
-//		}
-//		renderText("ok");
-//	}
+	// public void add_favtimes() {
+	//
+	// try {
+	// int mb_id = TyuServerUtils.getParamInt(this, "id", 0);
+	// if (mb_id == 0) {
+	// renderText("error");
+	// return;
+	// }
+	// SmbData data = (SmbData) SmbData.dao.findById(Integer
+	// .valueOf(mb_id));
+	// if (data != null) {
+	// int weight = data.getInt("mb_favtimes").intValue() + 1;
+	// data.set("mb_favtimes", Integer.valueOf(weight));
+	// data.update();
+	// renderText("ok");
+	// } else {
+	// renderText("error");
+	// }
+	// } catch (Exception e) {
+	// renderText("error:" + e.toString());
+	// }
+	// renderText("ok");
+	// }
 
 	/*
 	 * 增加设置次数
@@ -609,33 +610,33 @@ public class MainController extends Controller {
 	/*
 	 * 
 	 */
-//	public void get_shinning_friends_2nd() {
-//		try {
-//			getRequest().setCharacterEncoding("UTF-8");
-//			String tmp = TyuServerUtils.getPostStringZip(getRequest());
-//
-//			String raw = Coding.hex2bin(tmp);
-//			JSONObject obj = JSONObject.parseObject(raw);
-//			JSONArray array = obj.getJSONArray("phones");
-//			StringBuilder sb = new StringBuilder();
-//			sb.append("select * from user_info left join media_base on user_info.ui_mb_id = media_base.mb_id where ui_phone in (");
-//
-//			for (int i = 0; i < array.size(); ++i) {
-//				String number = array.getString(i);
-//				if (i == array.size() - 1)
-//					sb.append(String.format("'%s'", new Object[] { number }));
-//				else {
-//					sb.append(String.format("'%s',", new Object[] { number }));
-//				}
-//			}
-//			sb.append(")");
-//
-//			List<UserData> results = UserData.dao.find(sb.toString());
-//			renderText(JsonKit.listToJson(results, 5));
-//		} catch (Exception e) {
-//			renderText("error:" + e.toString());
-//		}
-//	}
+	// public void get_shinning_friends_2nd() {
+	// try {
+	// getRequest().setCharacterEncoding("UTF-8");
+	// String tmp = TyuServerUtils.getPostStringZip(getRequest());
+	//
+	// String raw = Coding.hex2bin(tmp);
+	// JSONObject obj = JSONObject.parseObject(raw);
+	// JSONArray array = obj.getJSONArray("phones");
+	// StringBuilder sb = new StringBuilder();
+	// sb.append("select * from user_info left join media_base on user_info.ui_mb_id = media_base.mb_id where ui_phone in (");
+	//
+	// for (int i = 0; i < array.size(); ++i) {
+	// String number = array.getString(i);
+	// if (i == array.size() - 1)
+	// sb.append(String.format("'%s'", new Object[] { number }));
+	// else {
+	// sb.append(String.format("'%s',", new Object[] { number }));
+	// }
+	// }
+	// sb.append(")");
+	//
+	// List<UserData> results = UserData.dao.find(sb.toString());
+	// renderText(JsonKit.listToJson(results, 5));
+	// } catch (Exception e) {
+	// renderText("error:" + e.toString());
+	// }
+	// }
 
 	/*
 	 * 
@@ -1139,7 +1140,7 @@ public class MainController extends Controller {
 		}
 	}
 
-	//instantaneous obj
+	// instantaneous obj
 	public void computeMd5() {
 		try {
 			List<SmbData> mediaBase = SmbData.dao
