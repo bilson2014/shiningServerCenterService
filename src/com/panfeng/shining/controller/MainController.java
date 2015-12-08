@@ -880,7 +880,7 @@ public class MainController extends Controller {
 			if (res) {
 				this.syncAllService();
 			}
-			renderText("upload" + res);
+			renderText("xxx" + res);
 		} catch (Exception e) {
 			// File imageFile=null;
 			// File videoFile=null;

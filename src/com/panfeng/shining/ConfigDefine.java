@@ -9,7 +9,7 @@ public class ConfigDefine {
 	/*
 	 * db
 	 */
-	public static String DB_IP = "127.0.0.1";
+	public static String DB_IP = "192.168.1.110";
 	public static String DB_PORT = "3306";
 	public static String DB_NAME = "shining";
 

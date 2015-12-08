@@ -152,7 +152,7 @@
 		//var image = $("<img style='width:200px;height:340px' src='http://182.92.154.162:8080/shiningCenterService/media_base/"+imageName+"'>")
 		//td_left.append(image);
 		
-		var image = $("<img style='width:200px;height:340px' src='http://192.168.1.110:8080/shiningCenterService/media_base/"+imageName+"'>")
+		var image = $("<img style='width:200px;height:340px' src='http://localhost:8080/shiningCenterService/media_base/"+imageName+"'>")
 		td_left.append(image);
 		
 
@@ -259,19 +259,19 @@
 					</tr>
 				</table>
 			</div>
-			<div>
+		<div>
 				<br /> <br />
 				<table id="videoList" border="1px">
 				</table>
-			</div>
-			<div id="div_foot">
+		</div>
+		<div id="div_foot">
 				<br /> <br /> <br />
 				<button onclick="pageup()">上一页</button>
 				第<span id="pageSpan">1</span>页
 				<button onclick="pagedown()">下一页</button>
 				<input type="text" id="pageID" style="width: 30px;" />
 				<button onclick="pageGOto()">GO</button>
-			</div>
+		</div>
 		</center>
 	</div>
 </body>

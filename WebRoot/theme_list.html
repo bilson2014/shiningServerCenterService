@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>音乐列表</title>
+<script src="js/jquery-1.10.2.min.js"></script>
+<script src="js/jquery-form.js"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		getValue();
+	});
+
+	function getValue() {
+		$("#showsortlist").empty();
+		$("#staticshwolist").empty();
+		$.ajax({
+			type : "POST",
+			url : "theme/getThemeList",
+			dataType : "json",
+			success : function(msg) {
+				var table = $("#showsortlist");
+
+				for (var i = 0; i < msg.length; i++) {
+					if (msg[i].ms_state == 0) {
+						continue;
+					}
+					var tr = createTR(msg[i].th_id, msg[i].th_name,
+							msg[i].th_state, msg[i].th_image,
+							msg[i].th_theme_zip, msg[i].th_lntroduction);
+					table.append(tr);
+				}
+			}
+		});
+	}
+	function submitForms(formname) {
+		$("#subForm" + formname).ajaxSubmit({
+			url : "theme/updateTheme",
+			success : function(data) {
+				alert(data);
+				if (data == 'ok') {
+					$("#showsortlist").empty();
+					getValue();
+				} else {
+					alert(data);
+				}
+			}
+		});
+	}
+	function deltheme(id) {
+		$.ajax({
+			type : "GET",
+			url : "theme/hideTheme?id=" + id,
+			success : function(msg) {
+				alert(msg);
+			}
+		});
+	}
+	//{"th_state":1,"th_sort":0,"th_id":5,"th_theme_zip":"","th_image":"","th_md5":"","th_lntroduction":"adw","th_name":"aa","th_author":null}
+	function createTR(id, name, state, image, zip, lntroduction) {
+		var tr = $("<tr></tr>");
+		var td_left = $("<td></td>");
+		var td_right = $("<td></td>");
+		//描述：<input type="text" name="remark" /><br/>
+
+		var image = $("<img style='width:180px;height:320px'src='themeimage/"+image+"'>");
+		td_left.append(image);
+
+		var form = $("<form id='subForm"+id+"' method='post' enctype='multipart/form-data'></form>");
+
+		form
+				.append("主题编号：<input type='text' name='id' readonly='readonly'  value="+id+" /><br/><br/>");
+
+		form
+				.append("主题名称：<input type='text' name='name' value="+name+" /><br/><br/>");
+
+		form
+				.append("主题状态：<input type='text' readonly='readonly'  name='sortstate' value="+state+" /><br/><br/>");
+
+		form.append("主题图片：<input type='file'  name='img' /><br/><br/>");
+		form.append("主题包：<input type='file'  name='zip' /><br/><br/>");
+		form
+				.append("视频分类描述：<input type='text'  name='lntroduction' value="+lntroduction+" /><br/><br/>");
+
+		form.append("&nbsp;&nbsp;<input type='button' onclick='submitForms("
+				+ id + ")' value='提交数据' />&nbsp;&nbsp;");
+
+		form.append("<input type='button' onclick='deltheme(" + id
+				+ ")' value='删除' />&nbsp;");
+
+		td_right.append(form);
+		tr.append(td_left);
+		tr.append(td_right);
+		return tr;
+	}
+</script>
+</head>
+<body>
+	<center>
+		<span style="font-size: 50px; color: red;">主题列表</span>
+		<div>
+			<table id="showsortlist" border="1px"></table>
+		</div>
+	</center>
+</body>
+</html>

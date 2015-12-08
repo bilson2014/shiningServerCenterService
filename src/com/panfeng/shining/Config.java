@@ -19,6 +19,7 @@ import com.panfeng.shining.tables.LoadBoot;
 import com.panfeng.shining.tables.MediaBaseUser;
 import com.panfeng.shining.tables.MediaSortList;
 import com.panfeng.shining.tables.SmbData;
+import com.panfeng.shining.tables.ThemeBase;
 import com.panfeng.shining.tables.UserData;
 import com.panfeng.shining.utils.TyuServerUtils;
 
@@ -52,6 +53,7 @@ public class Config extends JFinalConfig {
 		arp.addMapping("audio_base_list", "id", AudioBaseList.class);
 		arp.addMapping("media_sort_list", "ms_id", MediaSortList.class);
 		arp.addMapping("loadboot", "lead_id", LoadBoot.class);
+		arp.addMapping("theme_base", "th_id", ThemeBase.class);
 	}
 
 	@Override
