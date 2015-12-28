@@ -1,6 +1,7 @@
 package com.panfeng.shining.controller;
 
 import java.io.File;
+import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -123,6 +124,8 @@ public class MainController extends Controller {
 		if (videoNameString == null || videoNameString.equals("")) {
 			renderText("0");
 			return;
+			
+			
 		}
 		File file = new File(dir, videoNameString);
 		long fileLength = file.length();
@@ -206,6 +209,13 @@ public class MainController extends Controller {
 		renderText("ok");
 	}
 
+	public void getSearchKeys() {
+		String[] strings = { "电影", "TFBoys", "邓紫棋", "韩国", "BigBang", "动漫",
+				"T-Ara", "萌宠", "头脑风暴" };
+		String jsonString = JsonKit.toJson(strings);
+		renderText(jsonString);
+	}
+
 	// 1 为刚上传，为审核
 	// 0 为审核为通过
 	// 10为审核通过
@@ -224,7 +234,6 @@ public class MainController extends Controller {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	/*
@@ -463,7 +472,7 @@ public class MainController extends Controller {
 			}
 		} catch (Exception e) {
 			renderText("error:" + e.toString());
-			// e.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 
@@ -713,9 +722,6 @@ public class MainController extends Controller {
 		}
 	}
 
-	/*
-	 * 172.16.0.6
-	 */
 	public void modify_media_base() {
 		List<UploadFile> imageList = null;
 		try {
@@ -1229,7 +1235,7 @@ public class MainController extends Controller {
 
 	public void getVideoSortList() {
 		List<MediaSortList> mslLis = MediaSortList.dao
-				.find("select * from media_sort_list");
+				.find("select * from media_sort_list order by ms_id desc ");
 		if (mslLis != null && mslLis.size() > 0) {
 			String json = JsonKit.toJson(mslLis);
 			renderText(json);

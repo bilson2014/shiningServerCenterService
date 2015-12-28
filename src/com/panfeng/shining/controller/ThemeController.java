@@ -17,6 +17,7 @@ public class ThemeController extends Controller {
 		List<ThemeBase> themeBases = ThemeBase.dao
 				.find("select *from theme_base where th_state ='1'");
 		renderText(JsonKit.toJson(themeBases));
+		
 	}
 
 	public void uploadTheme() {

@@ -1,15 +1,15 @@
 package com.panfeng.shining;
 
 public class ConfigDefine {
-	public final static boolean DEBUG = true;
+	public final static boolean DEBUG = false;
 
 	// server
 	public final static String HOST = DEBUG ? "http://192.168.1.110:8080/shiningCenterService/"
-			: "http://182.92.154.162:8080/shiningCenterService/";
+			: "http://123.59.86.227:8080/shiningCenterService/";
 	/*
 	 * db
 	 */
-	public static String DB_IP = "192.168.1.110";
+	public static String DB_IP = "localhost";
 	public static String DB_PORT = "3306";
 	public static String DB_NAME = "shining";
 
