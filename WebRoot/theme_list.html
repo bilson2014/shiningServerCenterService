@@ -26,7 +26,8 @@
 					}
 					var tr = createTR(msg[i].th_id, msg[i].th_name,
 							msg[i].th_state, msg[i].th_image,
-							msg[i].th_theme_zip, msg[i].th_lntroduction);
+							msg[i].th_theme_zip, msg[i].th_lntroduction,
+							msg[i].th_price);
 					table.append(tr);
 				}
 			}
@@ -56,7 +57,7 @@
 		});
 	}
 	//{"th_state":1,"th_sort":0,"th_id":5,"th_theme_zip":"","th_image":"","th_md5":"","th_lntroduction":"adw","th_name":"aa","th_author":null}
-	function createTR(id, name, state, image, zip, lntroduction) {
+	function createTR(id, name, state, image, zip, lntroduction, coin) {
 		var tr = $("<tr></tr>");
 		var td_left = $("<td></td>");
 		var td_right = $("<td></td>");
@@ -72,6 +73,9 @@
 
 		form
 				.append("主题名称：<input type='text' name='name' value="+name+" /><br/><br/>");
+
+		form
+				.append("主题价格：<input type='text' name='coin' value="+coin+" /><br/><br/>");
 
 		form
 				.append("主题状态：<input type='text' readonly='readonly'  name='sortstate' value="+state+" /><br/><br/>");

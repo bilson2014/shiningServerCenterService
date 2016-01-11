@@ -7,28 +7,33 @@ import com.jfinal.config.JFinalConfig;
 import com.jfinal.config.Plugins;
 import com.jfinal.config.Routes;
 import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
-import com.jfinal.plugin.activerecord.dialect.MysqlDialect;
-import com.jfinal.plugin.c3p0.C3p0Plugin;
+import com.jfinal.plugin.druid.DruidPlugin;
+import com.jfinal.plugin.ehcache.EhCachePlugin;
 import com.jfinal.render.ViewType;
+import com.panfeng.shining.controller.AppShareController;
+import com.panfeng.shining.controller.DealController;
 import com.panfeng.shining.controller.GetStateController;
 import com.panfeng.shining.controller.MainController;
+import com.panfeng.shining.controller.MessageController;
 import com.panfeng.shining.controller.ThemeController;
-import com.panfeng.shining.tables.AudioBaseList;
-import com.panfeng.shining.tables.AudioSortList;
-import com.panfeng.shining.tables.LoadBoot;
-import com.panfeng.shining.tables.MediaBaseUser;
-import com.panfeng.shining.tables.MediaSortList;
-import com.panfeng.shining.tables.SmbData;
-import com.panfeng.shining.tables.ThemeBase;
-import com.panfeng.shining.tables.UserData;
+import com.panfeng.shining.model._MappingKit;
 import com.panfeng.shining.utils.TyuServerUtils;
 
+/**
+ * 
+ * @author dawn 2016年1月6日
+ */
 public class Config extends JFinalConfig {
+
+	private static DruidPlugin druidPlugin = null;
 
 	@Override
 	public void configConstant(Constants me) {
 		me.setEncoding("utf-8");
 		me.setViewType(ViewType.JSP);
+		if (ConfigDefine.DEBUG) {
+			me.setDevMode(true);
+		}
 	}
 
 	@Override
@@ -36,24 +41,42 @@ public class Config extends JFinalConfig {
 		me.add("/State", GetStateController.class);
 		me.add("/smc", MainController.class);
 		me.add("/theme", ThemeController.class);
+		me.add("/share", AppShareController.class);
+		me.add("/deal", DealController.class);
+		me.add("/msg", MessageController.class);
 	}
 
+	public static DruidPlugin createDruidPlugin() {
+		if (druidPlugin == null) {
+			synchronized ("sync") {
+				if (druidPlugin == null) {
+					druidPlugin = new DruidPlugin(ConfigDefine.getSqlAddress(),
+							ConfigDefine.DB_USER, ConfigDefine.DB_PWD,
+							ConfigDefine.DB_DRIVER_CLASS,
+							ConfigDefine.DB_FILTERS);
+				}
+			}
+		}
+		return druidPlugin;
+	}
+
+	/**
+	 * 初始化插件组
+	 */
 	@Override
 	public void configPlugin(Plugins me) {
-		C3p0Plugin cp = new C3p0Plugin(ConfigDefine.getSqlAddress(), "root",
-				"passw0rd");
-		me.add(cp);
-		ActiveRecordPlugin arp = new ActiveRecordPlugin(cp);
+		// 初始化 druid数据源
+		me.add(createDruidPlugin());
+
+		ActiveRecordPlugin arp = new ActiveRecordPlugin(createDruidPlugin());
+		_MappingKit.mapping(arp);
 		me.add(arp);
-		arp.setDialect(new MysqlDialect());
-		arp.addMapping("media_base", "mb_id", SmbData.class);
-		arp.addMapping("user_info", "ui_id", UserData.class);
-		arp.addMapping("media_base_user", "id", MediaBaseUser.class);
-		arp.addMapping("audio_sort_list", "id", AudioSortList.class);
-		arp.addMapping("audio_base_list", "id", AudioBaseList.class);
-		arp.addMapping("media_sort_list", "ms_id", MediaSortList.class);
-		arp.addMapping("loadboot", "lead_id", LoadBoot.class);
-		arp.addMapping("theme_base", "th_id", ThemeBase.class);
+		me.add(new EhCachePlugin());
+
+		if (ConfigDefine.DEBUG) {
+			arp.setDevMode(true);
+			arp.setShowSql(true);
+		}
 	}
 
 	@Override
@@ -72,6 +95,12 @@ public class Config extends JFinalConfig {
 		super.afterJFinalStart();
 		TyuServerUtils.logDeBug("jfinal", "系统启动完成，初始化ServiceList");
 		new ServiceList();
+	}
+
+	// 系统关闭时
+	@Override
+	public void beforeJFinalStop() {
+		super.beforeJFinalStop();
 	}
 
 }

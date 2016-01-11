@@ -1,0 +1,137 @@
+Table: audio_base_list
+-------------------+------------------+------+-----+---------+---------
+ Field             | Type             | Null | Key | Default | Remarks 
+-------------------+------------------+------+-----+---------+---------
+ id                | INT(10)          | NO   | PRI |         |         
+ audio_name        | VARCHAR(50)      | YES  |     |         |         
+ audio_upload_time | VARCHAR(50)      | YES  |     |         |         
+ audio_author      | VARCHAR(50)      | YES  |     |         |         
+ audio_context     | VARCHAR(200)     | YES  |     |         |         
+ audio_audioname   | VARCHAR(100)     | YES  |     |         |         
+ audio_sort_id     | INT UNSIGNED(10) | YES  |     |         |         
+ audio_state       | INT(10)          | YES  |     |         |         
+ mb_MD5            | VARCHAR(32)      | YES  |     |         |         
+-------------------+------------------+------+-----+---------+---------
+
+Table: audio_sort_list
+-----------+-------------+------+-----+---------+---------
+ Field     | Type        | Null | Key | Default | Remarks 
+-----------+-------------+------+-----+---------+---------
+ id        | INT(10)     | NO   | PRI |         |         
+ sort_name | VARCHAR(50) | YES  |     |         |         
+-----------+-------------+------+-----+---------+---------
+
+Table: loadboot
+--------------------+--------------+------+-----+---------+---------
+ Field              | Type         | Null | Key | Default | Remarks 
+--------------------+--------------+------+-----+---------+---------
+ lead_id            | INT(10)      | NO   | PRI |         |         
+ lead_num           | INT(10)      | YES  |     | 0       |         
+ lead_step          | VARCHAR(100) | YES  |     |         |         
+ lead_intent_first  | VARCHAR(100) | YES  |     |         |         
+ lead_intent_last   | VARCHAR(100) | YES  |     |         |         
+ lead_intent_word   | VARCHAR(300) | YES  |     |         |         
+ lead_videourl      | VARCHAR(150) | YES  |     |         |         
+ lead_os            | VARCHAR(100) | YES  |     |         |         
+ lead_brand_default | VARCHAR(100) | YES  |     |         |         
+--------------------+--------------+------+-----+---------+---------
+
+Table: media_base
+-----------------+------------------+------+-----+---------+---------
+ Field           | Type             | Null | Key | Default | Remarks 
+-----------------+------------------+------+-----+---------+---------
+ mb_id           | INT(10)          | NO   | PRI |         |         
+ mb_video_name   | TEXT(65535)      | YES  |     |         |         
+ mb_name         | TEXT(65535)      | YES  |     |         |         
+ mb_content      | TEXT(65535)      | YES  |     |         |         
+ mb_keys         | TEXT(65535)      | YES  |     |         |         
+ mb_upload_time  | VARCHAR(30)      | YES  |     |         |         
+ mb_weight       | INT(10)          | YES  |     | 0       |         
+ mb_state        | INT UNSIGNED(10) | YES  |     | 1       |         
+ mb_author       | TEXT(65535)      | YES  |     |         |         
+ mb_favorite     | INT(10)          | YES  |     | 0       |         
+ mb_settingtimes | INT(10)          | NO   |     | 0       |         
+ mb_plays        | INT(10)          | NO   |     | 0       |         
+ mb_md5          | VARCHAR(32)      | YES  |     |         |         
+ mb_price        | INT UNSIGNED(10) | YES  |     | 0000    |         
+-----------------+------------------+------+-----+---------+---------
+
+Table: media_base_user
+-------------+------------------+------+-----+---------+---------
+ Field       | Type             | Null | Key | Default | Remarks 
+-------------+------------------+------+-----+---------+---------
+ id          | INT(10)          | NO   | PRI |         |         
+ user_id     | INT(10)          | YES  |     |         |         
+ upload_time | VARCHAR(40)      | YES  |     |         |         
+ video_name  | VARCHAR(100)     | YES  |     |         |         
+ video_state | INT UNSIGNED(10) | YES  |     |         |         
+ mb_MD5      | VARCHAR(32)      | YES  |     |         |         
+-------------+------------------+------+-----+---------+---------
+
+Table: media_sort_list
+------------------+------------------+------+-----+---------+---------
+ Field            | Type             | Null | Key | Default | Remarks 
+------------------+------------------+------+-----+---------+---------
+ ms_id            | INT UNSIGNED(10) | NO   | PRI |         |         
+ ms_name          | CHAR(50)         | NO   |     |         |         
+ ms_state         | INT UNSIGNED(10) | YES  |     |         |         
+ ms_changimageurl | CHAR(255)        | YES  |     |         |         
+ ms_lueimageurl   | CHAR(255)        | YES  |     |         |         
+ ms_remark        | CHAR(255)        | YES  |     |         |         
+------------------+------------------+------+-----+---------+---------
+
+Table: message
+----------+------------------+------+-----+---------+---------
+ Field    | Type             | Null | Key | Default | Remarks 
+----------+------------------+------+-----+---------+---------
+ mg_id    | INT UNSIGNED(10) | NO   | PRI |         |         
+ mg_type  | INT UNSIGNED(10) | YES  |     | 0       |         
+ mg_time  | TIMESTAMP(19)    | YES  |     |         |         
+ mg_value | TEXT(65535)      | YES  |     |         |         
+ mg_uid   | VARCHAR(11)      | YES  |     |         |         
+ mg_state | INT(10)          | YES  |     |         |         
+----------+------------------+------+-----+---------+---------
+
+Table: purchase_history
+-----------+------------------+------+-----+-------------+---------
+ Field     | Type             | Null | Key | Default     | Remarks 
+-----------+------------------+------+-----+-------------+---------
+ ph_id     | INT UNSIGNED(10) | YES  |     | 0           |         
+ ph_uid    | INT UNSIGNED(10) | YES  |     | 00000000000 |         
+ ph_type   | INT UNSIGNED(10) | YES  |     | 0           |         
+ ph_time   | TIMESTAMP(19)    | YES  |     |             |         
+ ph_state  | INT UNSIGNED(10) | YES  |     | 0           |         
+ ph_buy_id | INT UNSIGNED(10) | YES  |     | 00000000000 |         
+-----------+------------------+------+-----+-------------+---------
+
+Table: theme_base
+-----------------+------------------+------+-----+---------+---------
+ Field           | Type             | Null | Key | Default | Remarks 
+-----------------+------------------+------+-----+---------+---------
+ th_id           | INT UNSIGNED(10) | NO   | PRI |         |         
+ th_name         | VARCHAR(100)     | YES  |     |         |         
+ th_lntroduction | TEXT(65535)      | YES  |     |         |         
+ th_sort         | INT(10)          | YES  |     |         |         
+ th_image        | VARCHAR(100)     | YES  |     |         |         
+ th_theme_zip    | VARCHAR(100)     | YES  |     |         |         
+ th_author       | VARCHAR(50)      | YES  |     |         |         
+ th_md5          | VARCHAR(32)      | YES  |     |         |         
+ th_state        | INT(10)          | YES  |     |         |         
+ th_price        | INT UNSIGNED(10) | YES  |     | 0000    |         
+-----------------+------------------+------+-----+---------+---------
+
+Table: user_info
+-------------+------------------+------+-----+---------+---------
+ Field       | Type             | Null | Key | Default | Remarks 
+-------------+------------------+------+-----+---------+---------
+ ui_id       | INT(10)          | NO   | PRI |         |         
+ ui_imei     | VARCHAR(50)      | YES  |     |         |         
+ ui_uuid     | VARCHAR(50)      | YES  |     |         |         
+ ui_name     | TEXT(65535)      | YES  |     |         |         
+ ui_phone    | VARCHAR(50)      | YES  |     |         |         
+ ui_mb_id    | INT(10)          | YES  |     | 0       |         
+ ui_image    | TEXT(65535)      | YES  |     |         |         
+ ui_monies   | INT UNSIGNED(10) | YES  |     | 0000    |         
+ ui_authcode | VARCHAR(32)      | YES  |     |         |         
+-------------+------------------+------+-----+---------+---------
+

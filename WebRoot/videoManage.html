@@ -32,42 +32,43 @@
 	function getValue(page_id) {
 		$("#videoList").empty();
 		var page_size = 20;
-		$
-				.ajax({
-					type : "GET",
-					url : "smc/get_media_base2nd",
-					data : {
-						"page_id" : page_id,
-						"page_size" : page_size
-					},
-					dataType : "json",
-					success : function(msg) {
-						var mb_id = 0;
-						var mb_video_name = "";
-						var mb_name = "";
-						var mb_content = "";
-						var mb_keys = "";
-						var mb_weight = "";
-						var mb_state = "";
-						var mb_author = "";
-						var mb_video_name = "";
-						var table = $("#videoList");
-						for (var i = 0; i < msg.length; i++) {
-							mb_id = msg[i].mb_id;
-							mb_video_name = msg[i].mb_video_name;
-							mb_name = msg[i].mb_name;
-							mb_content = msg[i].mb_content;
-							mb_keys = msg[i].mb_keys;
-							mb_weight = msg[i].mb_weight;
-							mb_state = msg[i].mb_state;
-							mb_author = msg[i].mb_author;
-							mb_video_name = msg[i].mb_video_name;
-							var tr = newTR(mb_id, mb_video_name, mb_name,
-									mb_content, mb_keys, mb_weight, mb_state,
-									mb_author, mb_video_name);
-							table.append(tr);
-						}
-					}
+		$.ajax({
+			type : "GET",
+			url : "smc/get_media_base2nd",
+			data : {
+				"page_id" : page_id,
+				"page_size" : page_size
+			},
+			dataType : "json",
+			success : function(msg) {
+				var mb_id = 0;
+				var mb_video_name = "";
+				var mb_name = "";
+				var mb_content = "";
+				var mb_keys = "";
+				var mb_weight = "";
+				var mb_state = "";
+				var mb_author = "";
+				var mb_video_name = "";
+				var mb_price = "";
+				var table = $("#videoList");
+				for (var i = 0; i < msg.length; i++) {
+					mb_id = msg[i].mb_id;
+					mb_video_name = msg[i].mb_video_name;
+					mb_name = msg[i].mb_name;
+					mb_content = msg[i].mb_content;
+					mb_keys = msg[i].mb_keys;
+					mb_weight = msg[i].mb_weight;
+					mb_state = msg[i].mb_state;
+					mb_author = msg[i].mb_author;
+					mb_video_name = msg[i].mb_video_name;
+					mb_price = msg[i].mb_price;
+					var tr = newTR(mb_id, mb_video_name, mb_name, mb_content,
+							mb_keys, mb_weight, mb_state, mb_author,
+							mb_video_name,mb_price);
+					table.append(tr);
+				}
+			}
 		});
 	}
 
@@ -78,49 +79,50 @@
 			var page_id = $("#pageSpan").html();
 			getValue(page_id);
 		} else {
-			$
-					.ajax({
-						type : "POST",
-						url : "smc/search_Media_Base",
-						data : {
-							"page_id" : "1",
-							"page_size" : "10000",
-							"searchValue" : searchValue
-						},
-						dataType : "json",
-						success : function(msg) {
-							var mb_id = 0;
-							var mb_video_name = "";
-							var mb_name = "";
-							var mb_content = "";
-							var mb_keys = "";
-							var mb_weight = "";
-							var mb_state = "";
-							var mb_author = "";
-							var mb_video_name = "";
-							var table = $("#videoList");
-							for (var i = 0; i < msg.length; i++) {
-								mb_id = msg[i].mb_id;
-								mb_video_name = msg[i].mb_video_name;
-								mb_name = msg[i].mb_name;
-								mb_content = msg[i].mb_content;
-								mb_keys = msg[i].mb_keys;
-								mb_weight = msg[i].mb_weight;
-								mb_state = msg[i].mb_state;
-								mb_author = msg[i].mb_author;
-								mb_video_name = msg[i].mb_video_name;
-								var tr = newTR(mb_id, mb_video_name, mb_name,
-										mb_content, mb_keys, mb_weight,
-										mb_state, mb_author, mb_video_name);
-								table.append(tr);
-							}
-						}
-					});
+			$.ajax({
+				type : "POST",
+				url : "smc/search_Media_Base",
+				data : {
+					"page_id" : "1",
+					"page_size" : "10000",
+					"searchValue" : searchValue
+				},
+				dataType : "json",
+				success : function(msg) {
+					var mb_id = 0;
+					var mb_video_name = "";
+					var mb_name = "";
+					var mb_content = "";
+					var mb_keys = "";
+					var mb_weight = "";
+					var mb_state = "";
+					var mb_author = "";
+					var mb_video_name = "";
+					var mb_price = "";
+					var table = $("#videoList");
+					for (var i = 0; i < msg.length; i++) {
+						mb_id = msg[i].mb_id;
+						mb_video_name = msg[i].mb_video_name;
+						mb_name = msg[i].mb_name;
+						mb_content = msg[i].mb_content;
+						mb_keys = msg[i].mb_keys;
+						mb_weight = msg[i].mb_weight;
+						mb_state = msg[i].mb_state;
+						mb_author = msg[i].mb_author;
+						mb_video_name = msg[i].mb_video_name;
+						mb_price = msg[i].mb_price;
+						var tr = newTR(mb_id, mb_video_name, mb_name,
+								mb_content, mb_keys, mb_weight, mb_state,
+								mb_author, mb_video_name, mb_price);
+						table.append(tr);
+					}
+				}
+			});
 		}
 	}
 
 	function newTR(mb_id, mb_video_name, mb_name, mb_content, mb_keys,
-			mb_weight, mb_state, mb_author, mb_video_name) {
+			mb_weight, mb_state, mb_author, mb_video_name, mb_coin) {
 		var tr = $("<tr id='tr"+mb_id+"'></tr>");
 		/*
 		var td_mb_id=$("<td>1</td>");
@@ -151,25 +153,26 @@
 				+ ".jpg";
 		//var image = $("<img style='width:200px;height:340px' src='http://182.92.154.162:8080/shiningCenterService/media_base/"+imageName+"'>")
 		//td_left.append(image);
-		
-		var image = $("<img style='width:200px;height:340px' src='http://localhost:8080/shiningCenterService/media_base/"+imageName+"'>")
+
+		var image = $("<img style='width:200px;height:340px' src='http://192.168.1.110:8080/shiningCenterService/media_base/"+imageName+"'>")
 		td_left.append(image);
-		
 
 		var form = $("<form id='subForm"+mb_id+"' method='post' enctype='multipart/form-data'></form>");
 
 		form
-				.append("视频编号：<input type='text' name='mb_id' readonly='readonly' id='td_id_"+mb_id+"' value='"+mb_id+"'/><br/><br/>");
+				.append("视频编号：<input type='text' name='mb_id' readonly='readonly'  value='"+mb_id+"'/><br/><br/>");
 		form
-				.append("视频名称：<input type='text' name='name' id='td_videoname_"+mb_id+"' value='"+mb_name+"'/><br/><br/>");
+				.append("视频名称：<input type='text' name='name' value='"+mb_name+"'/><br/><br/>");
 		form
-				.append("视频描述：<input type='text' name='content' id='td_videocontext_"+mb_id+"' value='"+mb_content+"'/><br/><br/>");
+				.append("视频描述：<input type='text' name='content'  value='"+mb_content+"'/><br/><br/>");
 		form
-				.append("作者：<input type='text' name='author' id='td_videoauthor_"+mb_id+"' value='"+mb_author+"'/><br/><br/>");
+				.append("作者：<input type='text' name='author'  value='"+mb_author+"'/><br/><br/>");
 		form
-				.append("keys：<input type='text' name='keyword' id='td_videoKEY_"+mb_id+"' value='"+mb_keys+"'/><br/><br/>");
+				.append("价格：<input type='text' name='coin'  value='"+mb_coin+"'/><br/><br/>");
 		form
-		        .append("封面图片：<input type='file' name='imagefile'/><br/><br/>");
+				.append("keys：<input type='text' name='keyword'  value='"+mb_keys+"'/><br/><br/>");
+
+		form.append("封面图片：<input type='file' name='imagefile'/><br/><br/>");
 		form
 				.append("设置视频优先级： <input type='text' name='weight' id='td_videomb_weight_"+mb_id+"' value='"+mb_weight+"'/><br/><br/>");
 		form.append("<input type='button' onclick='submitForms(" + mb_id
@@ -195,7 +198,7 @@
 				//location.reload(true);
 				if ($("#SearchInput").val() == '') {
 					var page_id = $("#pageSpan").html();
-				//	getValue(page_id);
+					//	getValue(page_id);
 				} else {
 					searchmedia();
 				}
@@ -211,7 +214,7 @@
 				//location.reload(true);
 				if ($("#SearchInput").val() == '') {
 					var page_id = $("#pageSpan").html();
-				//	getValue(page_id);
+					//	getValue(page_id);
 				} else {
 					searchmedia();
 				}
@@ -259,19 +262,19 @@
 					</tr>
 				</table>
 			</div>
-		<div>
+			<div>
 				<br /> <br />
 				<table id="videoList" border="1px">
 				</table>
-		</div>
-		<div id="div_foot">
+			</div>
+			<div id="div_foot">
 				<br /> <br /> <br />
 				<button onclick="pageup()">上一页</button>
 				第<span id="pageSpan">1</span>页
 				<button onclick="pagedown()">下一页</button>
 				<input type="text" id="pageID" style="width: 30px;" />
 				<button onclick="pageGOto()">GO</button>
-		</div>
+			</div>
 		</center>
 	</div>
 </body>

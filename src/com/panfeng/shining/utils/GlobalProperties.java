@@ -1,8 +1,5 @@
 package com.panfeng.shining.utils;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -15,13 +12,19 @@ public class GlobalProperties {
 	private GlobalProperties() {
 	}
 
+	/**
+	 * 获取属性文件内的内容
+	 * 
+	 * @return
+	 */
 	public static Properties get() {
 		if (prop == null) {
 			rl.lock();
 			if (prop == null) {
 				try {
-					InputStream is=	GlobalProperties.class.getResourceAsStream("/Config.properties");
-					prop=new Properties();
+					InputStream is = GlobalProperties.class
+							.getResourceAsStream("/Config.properties");
+					prop = new Properties();
 					prop.load(is);
 				} catch (IOException e) {
 					e.printStackTrace();

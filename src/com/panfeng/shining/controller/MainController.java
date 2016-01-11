@@ -1,10 +1,8 @@
 package com.panfeng.shining.controller;
 
 import java.io.File;
-import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -19,27 +17,25 @@ import com.panfeng.shining.ConfigDefine;
 import com.panfeng.shining.ServiceList;
 import com.panfeng.shining.entity.VideoInfo;
 import com.panfeng.shining.entity.newVideoInfo;
+import com.panfeng.shining.model.AudioBaseList;
+import com.panfeng.shining.model.AudioSortList;
+import com.panfeng.shining.model.Loadboot;
+import com.panfeng.shining.model.MediaBase;
+import com.panfeng.shining.model.MediaBaseUser;
+import com.panfeng.shining.model.MediaSortList;
+import com.panfeng.shining.model.UserInfo;
 import com.panfeng.shining.net.HttpUrlConnection;
-import com.panfeng.shining.slw.utils.MD5Utils;
-import com.panfeng.shining.tables.AudioBaseList;
-import com.panfeng.shining.tables.AudioSortList;
-import com.panfeng.shining.tables.LoadBoot;
-import com.panfeng.shining.tables.MediaBaseUser;
-import com.panfeng.shining.tables.MediaSortList;
-import com.panfeng.shining.tables.SmbData;
-import com.panfeng.shining.tables.UserData;
 import com.panfeng.shining.utils.GlobalProperties;
+import com.panfeng.shining.utils.MD5Utils;
 import com.panfeng.shining.utils.ReadFile;
 import com.panfeng.shining.utils.TyuFileUtils;
 import com.panfeng.shining.utils.TyuServerUtils;
-import com.panfeng.shining.videotools.Mp4Box;
-import com.panfeng.shining.videotools.VideoFirstThumbTaker;
+import com.panfeng.shining.utils.videotools.Mp4Box;
+import com.panfeng.shining.utils.videotools.VideoFirstThumbTaker;
 
 public class MainController extends Controller {
 
-	List<SmbData> allMediaDatas;
-
-	int currentId = 0;
+	List<MediaBase> allMediaDatas;
 
 	String dir = GlobalProperties.get().get("mediaBasePath").toString()
 			+ File.separator;
@@ -88,7 +84,7 @@ public class MainController extends Controller {
 				int servceiCout = ServiceList.getServerList().size();
 				int useServiceId = (int) (System.currentTimeMillis() % servceiCout);
 				String videoName;
-				videoName = SmbData.dao.findById(id).getStr("mb_video_name");
+				videoName = MediaBase.dao.findById(id).getStr("mb_video_name");
 				add_plays(id);
 				redirect("http://"
 						+ ServiceList.getServerList().get(useServiceId)
@@ -119,13 +115,12 @@ public class MainController extends Controller {
 
 	public void getVideoLength() {
 		int videoID = TyuServerUtils.getParamInt(this, "videoID", 0);
-		SmbData sd = SmbData.dao.findById(videoID);
-		String videoNameString = sd.get("mb_video_name");
+		MediaBase sd = MediaBase.dao.findById(videoID);
+		String videoNameString = sd.getMbVideoName();
 		if (videoNameString == null || videoNameString.equals("")) {
 			renderText("0");
 			return;
-			
-			
+
 		}
 		File file = new File(dir, videoNameString);
 		long fileLength = file.length();
@@ -142,12 +137,12 @@ public class MainController extends Controller {
 			if (mb_id == 0) {
 				return;
 			}
-			SmbData data = (SmbData) SmbData.dao.findById(Integer
+			MediaBase data = (MediaBase) MediaBase.dao.findById(Integer
 					.valueOf(mb_id));
 			// System.out.println(data.getInt("mb_id") + "mb_id");
 			if (data != null) {
-				int weight = (data.getInt("mb_plays").intValue() + 1);
-				data.set("mb_plays", Integer.valueOf(weight));
+				int weight = data.getMbPlays() + 1;
+				data.setMbPlays(weight);
 				data.update();
 			}
 		} catch (Exception e) {
@@ -193,11 +188,11 @@ public class MainController extends Controller {
 				renderText("error");
 				return;
 			}
-			SmbData data = (SmbData) SmbData.dao.findById(Integer
+			MediaBase data = (MediaBase) MediaBase.dao.findById(Integer
 					.valueOf(mb_id));
 			if (data != null) {
-				int weight = data.getInt("mb_settingtimes").intValue() + 1;
-				data.set("mb_settingtimes", Integer.valueOf(weight));
+				int weight = data.getMbSettingtimes() + 1;
+				data.setMbSettingtimes(weight);
 				data.update();
 				renderText("ok");
 			} else {
@@ -360,7 +355,7 @@ public class MainController extends Controller {
 			String sql = String
 					.format("select * from media_base where (mb_state=1 or mb_state=10) and mb_upload_time >= %s",
 							new Object[] { value });
-			List res = SmbData.dao.find(sql);
+			List res = MediaBase.dao.find(sql);
 
 			renderText(JsonKit.toJson(res));
 		} catch (Exception e) {
@@ -437,11 +432,13 @@ public class MainController extends Controller {
 				id = Integer.parseInt(idsString.split("\\_")[0]);
 				// System.out.println(id);
 				if (id > 0) {
-					MediaBaseUser mbu = MediaBaseUser.dao.findById(id);
+					MediaBaseUser mediaBaseUser = MediaBaseUser.dao
+							.findById(id);
 					// System.out.println();
-					if (mbu != null
-							&& !mbu.get("video_state").toString().equals("0")) {
-						renderText(JsonKit.toJson(mbu, 3));
+					if (mediaBaseUser != null
+							&& !mediaBaseUser.getVideoState().toString()
+									.equals("0")) {
+						renderText(JsonKit.toJson(mediaBaseUser, 3));
 						return;
 					} else {
 						renderText(null);
@@ -455,17 +452,18 @@ public class MainController extends Controller {
 				else
 					id = -1;
 				if (id > 0) {
-					SmbData data = (SmbData) SmbData.dao.findById(id);
-					if (data != null) {
-						renderText(JsonKit.toJson(data, 3));
+					MediaBase mediaBase = (MediaBase) MediaBase.dao
+							.findById(id);
+					if (mediaBase != null) {
+						renderText(JsonKit.toJson(mediaBase, 3));
 						return;
 					}
 					throw new Exception("no such video");
 				}
-				SmbData data = (SmbData) SmbData.dao
+				MediaBase mediaBase = (MediaBase) MediaBase.dao
 						.findFirst("select * from media_base where (mb_state=1 or mb_state=10) order by rand()");
-				if (data != null) {
-					renderText(JsonKit.toJson(data, 3));
+				if (mediaBase != null) {
+					renderText(JsonKit.toJson(mediaBase, 3));
 					return;
 				}
 				throw new Exception("no such video");
@@ -501,14 +499,14 @@ public class MainController extends Controller {
 				MediaBaseUser mbu;
 				for (int i = 0; i < mediaBaseUserList.size(); i++) {
 					mbu = mediaBaseUserList.get(i);
-					fileName = mbu.get("video_name");
+					fileName = mbu.getVideoName();
 					file = new File(dir, fileName);
 					// System.out.println(mbu.get("id")+"");
 					if (file.exists()) {
 						vInfo = new VideoInfo(file.getName(), file.length());
 						listVideoInfos.add(vInfo);
 					} else {
-						mbu.set("video_state", 0L);
+						mbu.setVideoState(0L);
 						mbu.update();
 					}
 				}
@@ -537,7 +535,7 @@ public class MainController extends Controller {
 			// System.out.println(sql + "%%");
 			MediaBaseUser mediaBaseUser = MediaBaseUser.dao.findFirst(sql);
 			if (mediaBaseUser != null) {
-				renderText(mediaBaseUser.getLong("id") + "");
+				renderText(mediaBaseUser.getId() + "");
 			}
 		} catch (Exception e) {
 			renderText("error:" + e.toString());
@@ -557,7 +555,7 @@ public class MainController extends Controller {
 				// System.out.println(sql);
 				MediaBaseUser mediaBaseUser = MediaBaseUser.dao.findFirst(sql);
 				if (mediaBaseUser != null) {
-					mediaBaseUser.set("video_state", 7);
+					mediaBaseUser.setVideoState(7L);
 					mediaBaseUser.update();
 					renderText("delete succeed");
 				} else {
@@ -575,9 +573,10 @@ public class MainController extends Controller {
 	public void hide_media_base() {
 		try {
 			int id = TyuServerUtils.getParamInt(this, "id", 0);
-			SmbData data = (SmbData) SmbData.dao.findById(Integer.valueOf(id));
+			MediaBase data = (MediaBase) MediaBase.dao.findById(Integer
+					.valueOf(id));
 			if (data != null) {
-				data.set("mb_state", Integer.valueOf(0));
+				data.setMbState(0L);
 				data.update();
 				renderText("删除成功");
 				return;
@@ -593,7 +592,7 @@ public class MainController extends Controller {
 	 */
 	public void get_user_count() {
 		try {
-			UserData rec = (UserData) UserData.dao
+			UserInfo rec = (UserInfo) UserInfo.dao
 					.findFirst("select count(*) from user_info");
 			renderText(JsonKit.toJson(rec));
 		} catch (Exception e) {
@@ -670,23 +669,23 @@ public class MainController extends Controller {
 			String fileName = TyuServerUtils.getParamString(this, "filename",
 					false);
 
-			MediaBaseUser mbu;
-			mbu = MediaBaseUser.dao
+			MediaBaseUser mediaBaseUser;
+			mediaBaseUser = MediaBaseUser.dao
 					.findFirst(String
 							.format("select * from media_base_user where video_name='%s' and  user_id='%d'",
 									fileName, user_id));
 			File src = new File(dir, fileName);
-			if (mbu != null) {
+			if (mediaBaseUser != null) {
 				if (src.length() != file.getFile().length()) {
 					src.delete();
 					file.getFile().renameTo(src);
 				} else {
 					file.getFile().delete();
 				}
-				mbu.set("video_state", 1);
-				boolean res = mbu.update();
+				mediaBaseUser.setVideoState(1L);
+				boolean res = mediaBaseUser.update();
 				if (res) {
-					renderText(JsonKit.toJson(mbu));
+					renderText(JsonKit.toJson(mediaBaseUser));
 				} else {
 					renderText("error:upload fail");
 				}
@@ -700,16 +699,16 @@ public class MainController extends Controller {
 					.substring(0, file_name.lastIndexOf(".")) + ".jpg";
 			tt.getThumb_2(file_name, img_path);
 
-			mbu = new MediaBaseUser();
-			mbu.set("user_id", user_id);
-			mbu.set("upload_time",
-					TyuServerUtils.date_format_mm.format(new Date()));
-			mbu.set("video_name", file.getFile().getName());
-			mbu.set("video_state", 1);
+			mediaBaseUser = new MediaBaseUser();
+			mediaBaseUser.setUserId(user_id);
+			mediaBaseUser.setUploadTime(TyuServerUtils.date_format_mm
+					.format(new Date()));
+			mediaBaseUser.setVideoName(file.getFile().getName());
+			mediaBaseUser.setVideoState(1L);
 
-			boolean res = mbu.save();
+			boolean res = mediaBaseUser.save();
 			if (res)
-				renderText(JsonKit.toJson(mbu));
+				renderText(JsonKit.toJson(mediaBaseUser));
 			else {
 				renderText("error:upload fail");
 			}
@@ -741,13 +740,13 @@ public class MainController extends Controller {
 				isrec = true;
 			}
 			int mb_id = TyuServerUtils.getParamInt(this, "mb_id", 0);
-
+			long coin = TyuServerUtils.getParamInt(this, "coin", 0);
 			if (mb_id > 0) {
-				SmbData ret = (SmbData) SmbData.dao.findById(Integer
-						.valueOf(mb_id));
-				if (ret != null) {
+				MediaBase mediaBase = (MediaBase) MediaBase.dao
+						.findById(Integer.valueOf(mb_id));
+				if (mediaBase != null) {
 					if (imageList != null && imageList.size() > 0) {
-						String videoFileName = ret.get("mb_video_name");
+						String videoFileName = mediaBase.getMbVideoName();
 						// System.out.println(videoFileName + "videoFileName");
 						String img_path = videoFileName.substring(0,
 								videoFileName.lastIndexOf(".")) + ".jpg";
@@ -768,17 +767,18 @@ public class MainController extends Controller {
 						// System.out.println(imageFile.length() + "");
 					}
 
-					ret.set("mb_keys", keyword);
-					ret.set("mb_weight", Integer.valueOf(weight));
-					ret.set("mb_name", name);
-					ret.set("mb_author", author);
+					mediaBase.setMbKeys(keyword);
+					mediaBase.setMbWeight(Integer.valueOf(weight));
+					mediaBase.setMbName(name);
+					mediaBase.setMbAuthor(author);
 					if (isrec)
-						ret.set("mb_state", Integer.valueOf(10));
+						mediaBase.setMbState(10L);
 					else {
-						ret.set("mb_state", Integer.valueOf(1));
+						mediaBase.setMbState(1L);
 					}
-					ret.set("mb_content", content);
-					ret.update();
+					mediaBase.setMbPrice(coin);
+					mediaBase.set("mb_content", content);
+					mediaBase.update();
 					renderText("提交完成");
 					return;
 				}
@@ -854,6 +854,8 @@ public class MainController extends Controller {
 			String author = TyuServerUtils.getParamString(this, "author", true);
 			// System.out.println("author" + author);
 
+			long coin = TyuServerUtils.getParamInt(this, "coin", 0);
+
 			if (imageFile != null) {
 				// System.out.println(imageFile.getName());
 				String img_path = videorenameFile.getName().substring(0,
@@ -871,18 +873,18 @@ public class MainController extends Controller {
 						+ ".jpg";
 				tt.getThumb(file_name, img_path, 360, 640);
 			}
-			SmbData data = new SmbData();
-			data.set("mb_video_name", videorenameFile.getName());
-			data.set("mb_name", name);
-			data.set("mb_content", content);
-			data.set("mb_keys", keyword);
-			data.set("mb_upload_time",
-					TyuServerUtils.date_format_mm.format(new Date()));
-			data.set("mb_weight", Integer.valueOf(weight));
-			data.set("mb_author", author);
-			data.set("mb_favorite", 0);
-			data.set("mb_md5", MD5Utils.getFileMD5String(videorenameFile));
-			boolean res = data.save();
+			MediaBase mediaBase = new MediaBase();
+			mediaBase.setMbVideoName(videorenameFile.getName());
+			mediaBase.setMbName(name);
+			mediaBase.setMbContent(content);
+			mediaBase.setMbKeys(keyword);
+			mediaBase.setMbUploadTime(TyuServerUtils.date_format_mm
+					.format(new Date()));
+			mediaBase.setMbWeight(weight);
+			mediaBase.setMbAuthor(author);
+			mediaBase.setMbPrice(coin);
+			mediaBase.setMbMd5(MD5Utils.getFileMD5String(videorenameFile));
+			boolean res = mediaBase.save();
 			if (res) {
 				this.syncAllService();
 			}
@@ -919,35 +921,35 @@ public class MainController extends Controller {
 			String name = TyuServerUtils.getParamString(this, "name", false);
 			String phone = TyuServerUtils.getParamString(this, "phone", false);
 
-			UserData res = (UserData) UserData.dao
+			UserInfo userInfo = (UserInfo) UserInfo.dao
 					.findFirst(String
 							.format("select * from user_info where ui_uuid='%s' order by ui_id desc",
 									new Object[] { uuid }));
-			if (res == null) {
-				res = new UserData();
+			if (userInfo == null) {
+				userInfo = new UserInfo();
 				if (file != null) {
 					String url = ConfigDefine.HOST + dir_name;
-					res.set("ui_image", url + file.getFileName());
+					userInfo.setUiImage(url + file.getFileName());
 				}
-				res.set("ui_uuid", uuid);
-				res.set("ui_imei", imei);
-				res.set("ui_mb_id", Integer.valueOf(ui_mb_id));
-				res.set("ui_name", name);
-				res.set("ui_phone", phone);
-				res.save();
+				userInfo.setUiUuid(uuid);
+				userInfo.setUiImei(imei);
+				userInfo.setUiMbId(ui_mb_id);
+				userInfo.setUiName(name);
+				userInfo.setUiPhone(phone);
+				userInfo.save();
 			} else {
 				if (file != null) {
 					String url = ConfigDefine.HOST + dir_name;
-					res.set("ui_image", url + file.getFileName());
+					userInfo.setUiImage(url + file.getFileName());
 				}
-				res.set("ui_mb_id", Integer.valueOf(ui_mb_id));
+				userInfo.setUiMbId(Integer.valueOf(ui_mb_id));
 				if (!StringUtils.isEmpty(name))
-					res.set("ui_name", name);
+					userInfo.setUiName(name);
 				if (!StringUtils.isEmpty(phone))
-					res.set("ui_phone", phone);
-				res.update();
+					userInfo.setUiPhone(phone);
+				userInfo.update();
 			}
-			renderText(JsonKit.toJson(res));
+			renderText(JsonKit.toJson(userInfo));
 		} catch (Exception e) {
 			renderText("error:" + e.toString());
 		}
@@ -960,10 +962,10 @@ public class MainController extends Controller {
 			switch (tagString) {
 			case "through":
 				if (page_id > 0) {
-					MediaBaseUser mbu = (MediaBaseUser) MediaBaseUser.dao
+					MediaBaseUser mediaBaseUser = (MediaBaseUser) MediaBaseUser.dao
 							.findById(page_id);
-					mbu.set("video_state", "10");
-					mbu.update();
+					mediaBaseUser.setVideoState(10L);
+					mediaBaseUser.update();
 					renderText("ok");
 				} else {
 					renderText("fail");
@@ -971,10 +973,11 @@ public class MainController extends Controller {
 				break;
 			case "noThrough":
 				if (page_id > 0) {
-					MediaBaseUser mbu = (MediaBaseUser) MediaBaseUser.dao
+					MediaBaseUser mediaBaseUser = (MediaBaseUser) MediaBaseUser.dao
 							.findById(page_id);
-					mbu.set("video_state", "0");
-					mbu.update();
+					mediaBaseUser.set("video_state", "0");
+					mediaBaseUser.setVideoState(0L);
+					mediaBaseUser.update();
 					renderText("ok");
 				} else {
 					renderText("fail");
@@ -994,17 +997,18 @@ public class MainController extends Controller {
 		try {
 			String idsString = getPara("id");
 			String sortName = getPara("sortname");
-			AudioSortList asl;
+			AudioSortList audioSortList;
 			if (idsString != null && !idsString.equals(""))// update
 			{
-				asl = AudioSortList.dao.findById(Integer.parseInt(idsString));
-				asl.set("sort_name", sortName);
-				asl.update();
+				audioSortList = AudioSortList.dao.findById(Integer
+						.parseInt(idsString));
+				audioSortList.setSortName(sortName);
+				audioSortList.update();
 				renderText("修改成功");
 			} else {// add
-				asl = new AudioSortList();
-				asl.set("sort_name", sortName);
-				asl.save();
+				audioSortList = new AudioSortList();
+				audioSortList.setSortName(sortName);
+				audioSortList.save();
 				renderText("新增成功");
 			}
 		} catch (Exception e) {
@@ -1046,28 +1050,29 @@ public class MainController extends Controller {
 			file = getFile("file", dir);
 			file2 = new File(dir, System.currentTimeMillis() + ".m4a");
 			file.getFile().renameTo(file2);
-			AudioBaseList abl = null;
+
 			String audioName = TyuServerUtils.getParamString(this, "audioName",
 					false);
 			String audioAuthor = TyuServerUtils.getParamString(this,
 					"audioAuthor", false);
 			String audioContext = TyuServerUtils.getParamString(this,
 					"audioContext", false);
-			int sort = TyuServerUtils.getParamInt(this, "sort", 0);
+			long sort = TyuServerUtils.getParamInt(this, "sort", 0);
 			// System.out.println(audioName + "12313 " + audioAuthor
 			// + audioContext + sort);
+			AudioBaseList audioBaseList = null;
 			if (isEmpty(audioName) && isEmpty(audioContext)
 					&& isEmpty(audioAuthor)) {
-				abl = new AudioBaseList();
-				abl.set("audio_name", audioName);
-				abl.set("audio_author", audioAuthor);
-				abl.set("audio_context", audioContext);
-				abl.set("audio_sort_id", sort);
-				abl.set("audio_state", 1);
-				abl.set("audio_upload_time",
-						TyuServerUtils.date_format_mm.format(new Date()));
-				abl.set("audio_audioname", file2.getName());
-				abl.save();
+				audioBaseList = new AudioBaseList();
+				audioBaseList.setAudioName(audioName);
+				audioBaseList.setAudioAuthor(audioAuthor);
+				audioBaseList.setAudioContext(audioContext);
+				audioBaseList.setAudioSortId(sort);
+				audioBaseList.setAudioState(1);
+				audioBaseList.setAudioUploadTime(TyuServerUtils.date_format_mm
+						.format(new Date()));
+				audioBaseList.setAudioAudioname(file2.getName());
+				audioBaseList.save();
 				renderText("提交完成");
 				// System.out.println("1");
 				return;
@@ -1111,13 +1116,13 @@ public class MainController extends Controller {
 
 			if (isEmpty(id) && isEmpty(name) && isEmpty(context)
 					&& isEmpty(author) && isEmpty(sotr_select)) {
-				AudioBaseList sbl = AudioBaseList.dao.findById(Integer
-						.parseInt(id));
-				sbl.set("audio_name", name);
-				sbl.set("audio_author", author);
-				sbl.set("audio_context", context);
-				sbl.set("audio_sort_id", Integer.parseInt(sotr_select));
-				sbl.update();
+				AudioBaseList audioBaseList = AudioBaseList.dao
+						.findById(Integer.parseInt(id));
+				audioBaseList.setAudioName(name);
+				audioBaseList.setAudioAuthor(author);
+				audioBaseList.setAudioContext(context);
+				audioBaseList.setAudioSortId(Long.parseLong(sotr_select));
+				audioBaseList.update();
 				renderText("更新成功");
 			} else {
 				renderText("参数错误");
@@ -1135,7 +1140,7 @@ public class MainController extends Controller {
 			if (isEmpty(id)) {
 				AudioBaseList ab = AudioBaseList.dao.findById(Integer
 						.parseInt(id));
-				ab.set("audio_state", 0);
+				ab.setAudioState(0);
 				ab.update();
 				renderText("刪除成功");
 			}
@@ -1147,27 +1152,27 @@ public class MainController extends Controller {
 	}
 
 	// instantaneous obj
-	public void computeMd5() {
-		try {
-			List<SmbData> mediaBase = SmbData.dao
-					.find("select * from media_base where (mb_state='1'or mb_state='10')");
-			Iterator<SmbData> iteratorSmbData = mediaBase.iterator();
-			SmbData smbData;
-			File videofile;
-			while (iteratorSmbData.hasNext()) {
-				smbData = iteratorSmbData.next();
-				videofile = new File(dir, smbData.getStr("mb_video_name"));
-				if (!videofile.exists())
-					continue;
-				smbData.set("mb_md5", MD5Utils.getFileMD5String(videofile));
-				smbData.update();
-			}
-			renderText("ok");
-		} catch (Exception e) {
-			e.printStackTrace();
-			renderText("error" + e.getMessage());
-		}
-	}
+	// public void computeMd5() {
+	// try {
+	// List<MediaBase> mediaBase = MediaBase.dao
+	// .find("select * from media_base where (mb_state='1'or mb_state='10')");
+	// Iterator<MediaBase> iteratorSmbData = mediaBase.iterator();
+	// MediaBase smbData;
+	// File videofile;
+	// while (iteratorSmbData.hasNext()) {
+	// smbData = iteratorSmbData.next();
+	// videofile = new File(dir, smbData.getStr("mb_video_name"));
+	// if (!videofile.exists())
+	// continue;
+	// smbData.set("mb_md5", MD5Utils.getFileMD5String(videofile));
+	// smbData.update();
+	// }
+	// renderText("ok");
+	// } catch (Exception e) {
+	// e.printStackTrace();
+	// renderText("error" + e.getMessage());
+	// }
+	// }
 
 	// ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// ////////////////////////////////////////////视频分类代码////////////////////////////////////////////////////////
@@ -1195,35 +1200,37 @@ public class MainController extends Controller {
 			String sortNameString = TyuServerUtils.getParamString(this,
 					"sortname", true);
 			String remark = TyuServerUtils.getParamString(this, "remark", true);
-			int sortState = TyuServerUtils.getParamInt(this, "sortstate", -1);
+			long sortState = TyuServerUtils.getParamInt(this, "sortstate", -1);
 			// 判断新增或者修改
 			if (sortState == -1) {
 				if (sortNameString != null && !sortNameString.equals("")) {
-					MediaSortList mslList = new MediaSortList();
-					mslList.set("ms_name", sortNameString);
-					mslList.set("ms_state", 1);
+					MediaSortList mediaSortList = new MediaSortList();
+					mediaSortList.setMsName(sortNameString);
+					mediaSortList.setMsState(1L);
 					if (chang != null)
-						mslList.set("ms_changimageurl", chang.getName());
+						mediaSortList.setMsChangimageurl(chang.getName());
 					if (lue != null)
-						mslList.set("ms_lueimageurl", lue.getName());
-					mslList.set("ms_remark", "normal");
+						mediaSortList.setMsLueimageurl(lue.getName());
+					mediaSortList.setMsRemark("normal");
 					if (remark != null)
-						mslList.set("ms_remark", remark);
-					mslList.save();
+						mediaSortList.setMsRemark(remark);
+					mediaSortList.save();
 				}
 			} else {
 				int sortID = TyuServerUtils.getParamInt(this, "sortid", -1);
-				MediaSortList msl = MediaSortList.dao.findById(sortID);
-				if (msl != null) {
-					msl.set("ms_name", sortNameString);
-					msl.set("ms_state", sortState);
+				MediaSortList mediaSortList = MediaSortList.dao
+						.findById(sortID);
+				if (mediaSortList != null) {
+					mediaSortList.setMsName(sortNameString);
+					mediaSortList.setMsState(sortState);
+
 					if (chang != null)
-						msl.set("ms_changimageurl", chang.getName());
+						mediaSortList.setMsChangimageurl(chang.getName());
 					if (lue != null)
-						msl.set("ms_lueimageurl", lue.getName());
+						mediaSortList.setMsLueimageurl(lue.getName());
 					if (remark != null)
-						msl.set("ms_remark", remark);
-					msl.update();
+						mediaSortList.setMsRemark(remark);
+					mediaSortList.update();
 				}
 			}
 			renderText("ok");
@@ -1277,11 +1284,11 @@ public class MainController extends Controller {
 			String os = TyuServerUtils.getParamString(this, "lead_os", true);
 			String brand = TyuServerUtils.getParamString(this, "lead_brand",
 					true);
-			List<LoadBoot> list = LoadBoot.dao.find(String.format(
+			List<Loadboot> list = Loadboot.dao.find(String.format(
 					"select * from loadboot where lead_os='%s'", os));
 			if (list != null && list.size() > 0) {
 			} else {
-				list = LoadBoot.dao.find(String.format(
+				list = Loadboot.dao.find(String.format(
 						"select * from loadboot where lead_brand_default='%s'",
 						brand));
 				if (list == null || list.size() < 1) {
@@ -1294,7 +1301,6 @@ public class MainController extends Controller {
 			e.printStackTrace();
 			renderText("error" + e.getMessage());
 		}
-
 	}
 
 	// ////////////////////////////////////////////////////////////////////////////////////////////////////////////

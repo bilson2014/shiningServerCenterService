@@ -1,9 +1,5 @@
 package com.panfeng.shining.utils;
 
-import com.alibaba.fastjson.JSONObject;
-import com.jfinal.core.Controller;
-import com.jfinal.plugin.activerecord.Model;
-
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -12,7 +8,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -31,6 +26,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
+
+import com.alibaba.fastjson.JSONObject;
+import com.jfinal.core.Controller;
+import com.jfinal.plugin.activerecord.Model;
 
 public class TyuServerUtils {
 	public static Logger logger = Logger.getLogger(TyuServerUtils.class);
@@ -56,8 +55,8 @@ public class TyuServerUtils {
 		}
 	}
 
-	public static void logDeBug(String name,String log) {
-    debugLogger.info(name+"  ---  >  "+log);
+	public static void logDeBug(String name, String log) {
+		debugLogger.info(name + "  ---  >  " + log);
 	}
 
 	public static String getTime() {
@@ -225,15 +224,6 @@ public class TyuServerUtils {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	public static String Model2Json(Model object) {
-		JSONObject jb = new JSONObject();
-		String[] keys = object.getAttrNames();
-		for (int i = 0; i < keys.length; ++i) {
-			jb.put(keys[i], object.get(keys[i]));
-		}
-		return jb.toString();
 	}
 
 	public static void Json2Model(String aJson, Model aModel) {
@@ -446,6 +436,15 @@ public class TyuServerUtils {
 		String tmp = aCont.getPara(aKey);
 		if ((MustHasValue) && (StringUtils.isEmpty(tmp))) {
 			throw new Exception(aKey + " can not be null");
+		}
+		return tmp;
+	}
+
+	public static String getParamStringDefault(Controller aCont, String aKey,
+			String def) {
+		String tmp = aCont.getPara(aKey);
+		if ((StringUtils.isEmpty(tmp))) {
+			return def;
 		}
 		return tmp;
 	}
